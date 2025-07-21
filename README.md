@@ -6,6 +6,6 @@ This web tool is an implementation of *A Framework for Assessing and Updating Ph
 
 📘 **User guide:** [Geometric Digital Twin Assessment Tool User Guide](gdt_tool_user_guide.pdf)
 
-For more details, see: [link will be here]
+For more details, see: [Link will be here]
 
 ![](gdt_preview.jpg)
