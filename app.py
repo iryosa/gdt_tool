@@ -6,7 +6,7 @@ from utils.calculations import calculate_lod, calculate_gsd, model_resolution_co
 st.set_page_config(page_title="GDT Assessment Tool", layout="wide")
 st.markdown('<h1 class="main-title" style="color: #FFFFFF !important;">Geometric Digital Twin Assessment Tool</h1>', unsafe_allow_html=True)
 
-# Add custom CSS for better styling
+# Styling
 st.markdown("""
 <style>
     /* Main title styling */
@@ -349,7 +349,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Define data quality data lists
+# Define data quality lists
 feature_dq_data = [
     {
         "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute (external)",
@@ -491,7 +491,7 @@ scale_dq_data = [
 # Create tabs
 tab1, tab2, tab3 = st.tabs(["Model G(0)", "Model G(t)", "Assessment Results"])
 
-# Function to create the model assessment form
+# Create the model assessment form
 def create_model_assessment_form(tab_prefix=""):
     # --- 1. GDT Characteristics ---
     model_name = "Model G(0)" if tab_prefix == "g0" else "Model G(t)"
