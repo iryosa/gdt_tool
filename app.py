@@ -1401,7 +1401,7 @@ with tab3:
             st.caption("Both Dacc and δD must be calculated and non-zero")
 
         # Conditions 2 section
-        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: LoD Verification</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: Model LoD Verification</h3>', unsafe_allow_html=True)
         st.caption("Consistency of LoD between Model G(0) and Model G(t)")
         
         # Values for LoD comparison
@@ -1582,8 +1582,10 @@ with tab3:
                         "δD": f"{delta_d:.3f}" if delta_d != 0 else "Not calculated",
                         "Dacc vs δD comparison": comparison_result if dacc is not None and delta_d != 0 else "Not calculated"
                     },
-                    "Model Resolution Verification": {
+                    "Model LoD Verification": {
                         "LoD verification": lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated",
+                    },
+                    "Model Resolution Verification": {
                         "Resolution verification": resolution_comparison if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None else "Not calculated"
                     },
                     "Model G(t) vs Model G(0) Performance": {
@@ -1622,7 +1624,7 @@ with tab3:
                 writer.writerow([])
                 
                 # LoD Verification
-                writer.writerow(["LoD Verification"])
+                writer.writerow(["LoD Calculation"])
                 writer.writerow(["Model", "AGR", "Suggested LoD", "Resolution achieved", "Feature's RMSE"])
                 writer.writerow([
                     "Model G(0)",
@@ -1658,8 +1660,8 @@ with tab3:
                 writer.writerow(["Dacc vs δD comparison", comparison_result if dacc is not None and delta_d != 0 else "Not calculated"])
                 writer.writerow([])
                 
-                # Model LoD Calculation
-                writer.writerow(["Model LoD Calculation"])
+                # Model LoD Verification
+                writer.writerow(["Model LoD Verification"])
                 writer.writerow(["LoD Verification", lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated"])
                 writer.writerow([])
                 
@@ -1722,7 +1724,7 @@ with tab3:
                         "Dacc vs δD comparison": comparison_result if dacc is not None and delta_d != 0 else "Not calculated"
                     },
                 
-                    "Model LoD Calculation": {
+                    "Model LoD Verification": {
                         "LoD Verification": lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated",
                                             },
                     "Model Resolution Verification": {
