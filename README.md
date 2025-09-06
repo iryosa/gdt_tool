@@ -1,10 +1,10 @@
 # gdt_tool
 
-This web tool is an implementation of *A Framework for Assessing and Updating Photogrammetry-Based Geometric Digital Twins*.
+This prototype web tool implements A Framework for Verification of Geometric Digital Twins.
 
-🗃️ **Try the tool:** [Geometric Digital Twin Assessment Tool](https://gdttool-01.streamlit.app/)
+🗃️ **Try the tool:** [Geometric Digital Twin Verification Tool](https://gdtapp.streamlit.app/)
 
-📘 **User guide:** [Geometric Digital Twin Assessment Tool User Guide](gdt_tool_user_guide.pdf)
+📘 **User guide:** [Geometric Digital Twin Verification Tool User Guide](gdt_tool_user_guide.pdf)
 
 For more details, see: [Link will be here]
 
