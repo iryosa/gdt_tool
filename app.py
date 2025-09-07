@@ -968,8 +968,7 @@ with tab3:
             st.caption("Both mean and standard deviation must be non-zero to calculate the threshold")
 
         # Condition 1 section
-        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 1: Model Accuracy Verification</h3>', unsafe_allow_html=True)
-        st.caption("Comparison of positional accuracy between Model G(0) and Model G(t)")
+        st.subheader("Condition 1: Model Accuracy Verification", help="Comparison of positional accuracy between Model G(0) and Model G(t). This condition evaluates whether Model G(t) maintains or improves the positional accuracy compared to Model G(0) by comparing the calculated Dacc value against the defined threshold δD.")
                     
         # Values for Dacc calculation
         g0_abs_pos = None
@@ -1029,8 +1028,7 @@ with tab3:
             st.caption("Both Dacc and δD must be calculated and non-zero")
 
         # Conditions 2 section
-        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: LoD Verification</h3>', unsafe_allow_html=True)
-        st.caption("Consistency of LoD between Model G(0) and Model G(t)")
+        st.subheader("Condition 2: LoD Verification", help="Consistency of LoD between Model G(0) and Model G(t). This condition ensures that both models maintain the same Level of Detail (LoD) requirements, indicating consistent geometric representation quality across model versions.")
         
         # Values for LoD comparison
         g0_lod = g0_suggested_lod
@@ -1046,8 +1044,7 @@ with tab3:
         
         
         # Condition 3 section
-        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
-        st.caption("Consistency of resolution between Model G(0) and Model G(t)")
+        st.subheader("Condition 3: Model Resolution Verification", help="Consistency of resolution between Model G(0) and Model G(t). This condition verifies that Model G(t) maintains or improves the spatial resolution compared to Model G(0), ensuring no degradation in model quality during the updating process.")
         
         # Resolution achieved
         if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None:
