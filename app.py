@@ -190,6 +190,20 @@ st.markdown("""
         transform: scaleX(0.5);
     }
     
+    /* Custom styling for condition headers */
+    .stSubheader h3 {
+        color: #fbd57a !important;
+        font-size: 1.2rem !important;
+        font-weight: bold !important;
+    }
+    
+    /* Custom styling for performance comparison header */
+    .performance-comparison h3 {
+        color: #89A8B2 !important;
+        font-size: 1.2rem !important;
+        font-style: italic !important;
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -1055,7 +1069,9 @@ with tab3:
             st.caption("Both models must have valid resolution values")
 
         # Performance Comparison section
+        st.markdown('<div class="performance-comparison">', unsafe_allow_html=True)
         st.subheader("Performance Comparison: Model G(t) vs Model G(0) (optional)", help="Percentage of evaluation parameters where Model G(t) outperforms Model G(0) based on Conditional and Optional DQ Elements")
+        st.markdown('</div>', unsafe_allow_html=True)
         
         # Initialize counters
         total_parameters = 0
