@@ -139,12 +139,12 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] {
         height: 3rem;
         white-space: pre-wrap;
-        background-color: #FFFFFF !important;
+        background-color: #E5E1DA !important;
         border-radius: 4px 4px 0 0;
         gap: 1rem;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
-        color: #FBF8EF;
+        color: #2C3E50;
         font-weight: bold;
         font-size: 1.5rem;
         min-width: 200px;
@@ -175,11 +175,15 @@ st.markdown("""
     }
     
     .stTabs [aria-selected="false"] {
-        opacity: 0.7;
+        opacity: 0.8;
+        background-color: #B3C8CF !important;
+        color: #2C3E50 !important;
     }
     
     .stTabs [aria-selected="false"]:hover {
         opacity: 1;
+        background-color: #89A8B2 !important;
+        color: #2C3E50 !important;
     }
     
     .stTabs [aria-selected="false"]:hover::after {
@@ -192,11 +196,11 @@ st.markdown("""
 # DQ Elements Lists
 feature_dq_data = [
     {
-        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute (external)",
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute",
         "Hint": "Alignment of the model with real-world context"
     },
     {
-        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative (internal)",
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative",
         "Hint": "Internal consistency of the model"
     },
     {
@@ -263,11 +267,11 @@ feature_dq_data = [
 
 scale_dq_data = [
     {
-        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute (external)",
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute",
         "Hint": "Alignment of the model with real-world context"
     },
     {
-        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative (internal)",
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative",
         "Hint": "Internal consistency of the model"
     },
     {
@@ -296,8 +300,8 @@ def get_feature_measure_lists():
             "Number of duplicate items"
         ],
         "decimal": [
-            "Positional absolute (external)",
-            "Positional relative (internal)"
+            "Positional absolute",
+            "Positional relative"
         ],
         "yes_no": [
             "Excess items",
@@ -441,7 +445,7 @@ def create_model_verification_form(tab_prefix=""):
 
     # --- 4.1 GSD & Model Resolution ---
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 4.1 Ground Sample Distance (GSD) Calculation</h2>', unsafe_allow_html=True)
-    sensor_size = st.number_input("Sensor size (mm)", min_value=0.0, key=f"{tab_prefix}_sensor_size")
+    sensor_size = st.number_input("Sensor size (mm)", min_value=0.0, format="%.2f", step=0.01, key=f"{tab_prefix}_sensor_size")
     focal_length = st.number_input("Focal length (mm)", min_value=0.0, key=f"{tab_prefix}_focal_length")
     flight_height = st.number_input("Flight height (m)", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
     image_width = st.number_input("Image width (px)", min_value=1, value=None, key=f"{tab_prefix}_image_width")
@@ -975,12 +979,12 @@ with tab3:
         
         # Values from measures based on sample type
         for i, dq in enumerate(data_list):
-            if dq["Measure"] == "Positional absolute (external)":
+            if dq["Measure"] == "Positional absolute":
                 if st.session_state.get(f"g0_{check_prefix}_{i}", False):
                     g0_abs_pos = st.session_state.get(f"g0_{value_prefix}_{i}", 0)
                 if st.session_state.get(f"gt_{check_prefix}_{i}", False):
                     gt_abs_pos = st.session_state.get(f"gt_{value_prefix}_{i}", 0)
-            elif dq["Measure"] == "Positional relative (internal)":
+            elif dq["Measure"] == "Positional relative":
                 if st.session_state.get(f"g0_{check_prefix}_{i}", False):
                     g0_rel_pos = st.session_state.get(f"g0_{value_prefix}_{i}", 0)
                 if st.session_state.get(f"gt_{check_prefix}_{i}", False):
@@ -1010,7 +1014,9 @@ with tab3:
         delta_d = st.number_input(
             "δD (Accuracy difference threshold)",
             help="Set your value. An empirical approach is preferable (δD = μDacc ± 2σDacc) from multiple update processes. Alternatively, use relevant regulatory or project requirements",
+            min_value=0.0,
             format="%.3f",
+            step=0.001,
             key="delta_d"
         )
         
