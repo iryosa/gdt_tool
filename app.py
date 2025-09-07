@@ -1143,7 +1143,7 @@ with tab3:
                 color = "#FF0000"  # Red
                 message = "Decline in all metrics for model G(t). Unsuitable for the updating process."
             elif conditions_fulfilled == 1:
-                score = ⚠️ Warning"
+                score = "⚠️ Warning"
                 color = "#FFA500"  # Orange
                 message = "Only one of three conditions is fulfilled. Decline in metrics for model G(t). Unsuitable for the updating process."
             elif conditions_fulfilled == 2:
