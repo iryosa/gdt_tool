@@ -204,43 +204,43 @@ feature_dq_data = [
         "Hint": "Internal consistency of the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Excess items",
-        "Hint": "Items are not correctly presented in the model"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Excess features",
+        "Hint": "Features are not correctly presented in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of excess items",
-        "Hint": "The number of items within the model that are incorrectly represented or should not have been included"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of excess features",
+        "Hint": "The number of features within the model that are incorrectly represented or should not have been included"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Rate of excess items",
-        "Hint": "The number of incorrect items within the model relative to the total number of items represented"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Rate of excess features",
+        "Hint": "The number of incorrect features within the model relative to the total number of features represented"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of duplicate items",
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of duplicate features",
         "Hint": "The total number of duplications within the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Missing items",
-        "Hint": "Required items are missing in the model"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Missing features",
+        "Hint": "Required features are missing in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Number of missing items",
-        "Hint": "The number of missing items that should have been presented in the model"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Number of missing features",
+        "Hint": "The number of missing features that should have been presented in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Rate of missing items",
-        "Hint": "The number of missing items in the model or sample relative to the total number of items represented"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Rate of missing features",
+        "Hint": "The number of missing features in the model or sample relative to the total number of features represented"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Number of incorrectly classified items",
-        "Hint": "The total number of incorrectly classified items"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Number of incorrectly classified features",
+        "Hint": "The total number of incorrectly classified features"
     },
     {
         "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Misclassification rate",
-        "Hint": "The ratio of incorrectly classified items to the total number of items"
+        "Hint": "The ratio of incorrectly classified features to the total number of features"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Data model compliance",
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Interoperability compliance",
         "Hint": "Compliance with interoperability requirements"
     },
     {
@@ -248,16 +248,16 @@ feature_dq_data = [
         "Hint": "The degree to which the model meets the required LoD"
     },
     {
-        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Conceptual schema compliance",
-        "Hint": "Items are compliant with the definitions or rules of the relevant conceptual schema"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Data schema compliance",
+        "Hint": "Features are compliant with the definitions or rules of the relevant data schema"
     },
     {
-        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Number of items not compliant",
-        "Hint": "The total number of items that are not compliant with the definitions or rules of the relevant conceptual schema"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Number of non-compliant features",
+        "Hint": "The total number of features that are not compliant with the definitions or rules of the relevant data schema"
     },
     {
-        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Not compliant rate",
-        "Hint": "The number of items that are not compliant with the definitions or rules of the relevant conceptual schema relative to the total number of items"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Non-compliance rate",
+        "Hint": "The number of features that are not compliant with the definitions or rules of the relevant data schema relative to the total number of features"
     },
     {
         "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Temporal accuracy",
@@ -275,7 +275,7 @@ scale_dq_data = [
         "Hint": "Internal consistency of the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Data model compliance",
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Interoperability compliance",
         "Hint": "Compliance with interoperability requirements"
     },
     {
@@ -293,29 +293,29 @@ def get_feature_measure_lists():
     """Get the measure lists for feature-based evaluation"""
     return {
         "number_only": [
-            "Number of excess items",
-            "Number of missing items", 
-            "Number of incorrectly classified items",
-            "Number of items not compliant",
-            "Number of duplicate items"
+            "Number of excess features",
+            "Number of missing features", 
+            "Number of incorrectly classified features",
+            "Number of non-compliant features",
+            "Number of duplicate features"
         ],
         "decimal": [
             "Positional absolute",
             "Positional relative"
         ],
         "yes_no": [
-            "Excess items",
-            "Missing items",
-            "Data model compliance",
+            "Excess features",
+            "Missing features",
+            "Interoperability compliance",
             "LoD compliance",
-            "Conceptual schema non-compliance",
-            "Conceptual schema compliance"
+            "Data schema non-compliance",
+            "Data schema compliance"
         ],
         "rate": {
-            "Rate of excess items": "Number of excess items",
-            "Rate of missing items": "Number of missing items",
-            "Misclassification rate": "Number of incorrectly classified items",
-            "Not compliant rate": "Number of items not compliant"
+            "Rate of excess features": "Number of excess features",
+            "Rate of missing features": "Number of missing features",
+            "Misclassification rate": "Number of incorrectly classified features",
+            "Non-compliance rate": "Number of non-compliant features"
         }
     }
 
@@ -324,7 +324,7 @@ def get_scale_measure_lists():
     return {
         "number_only": [],
         "yes_no": [
-            "Data model compliance",
+            "Interoperability compliance",
             "LoD compliance"
         ]
     }
@@ -411,7 +411,7 @@ def create_model_verification_form(tab_prefix=""):
         sample_type = g0_sample_type
 
     if sample_type == "Feature-based":
-        total_features = st.number_input("Total Number of Features (items)", min_value=0, value=0, key=f"{tab_prefix}_total_features")
+        total_features = st.number_input("Total Number of Features", min_value=0, value=0, key=f"{tab_prefix}_total_features")
     else:
         sample_scale = st.text_input("Sample Scale (optional)", key=f"{tab_prefix}_sample_scale")
 
@@ -843,7 +843,7 @@ with tab3:
         # Additional sample information based on the type
         if sample_type == "Feature-based":
             total_features = st.session_state.get("g0_total_features", "Not specified")
-            st.write(f"**Total number of features (items):** {total_features}")
+            st.write(f"**Total number of features:** {total_features}")
         elif sample_type == "Scale-based":
             sample_scale = st.session_state.get("g0_sample_scale", "Not specified")
             st.write(f"**Sample scale:** {sample_scale}")
@@ -1078,8 +1078,8 @@ with tab3:
                     
                     # Compare values based on measure type
                     if g0_value != "N/D" and gt_value != "N/D":
-                        if dq["Measure"] in ["Excess items", "Missing items", "Data model compliance", "LoD compliance", 
-                                           "Conceptual schema compliance"]:
+                        if dq["Measure"] in ["Excess features", "Missing features", "Interoperability compliance", "LoD compliance", 
+                                           "Data schema compliance"]:
                             # For Yes/No measures, "No" is better
                             if g0_value == "Yes" and gt_value == "No":
                                 gt_better_count += 1
