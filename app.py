@@ -4,10 +4,11 @@ import re
 from utils.calculations import calculate_lod, calculate_gsd, model_resolution_control
 
 st.set_page_config(page_title="GDT Verification Tool", layout="wide")
+st.markdown('<h1 class="main-title" style="color: #FFFFFF !important;">Geometric Digital Twin Verification Tool</h1>', unsafe_allow_html=True)
 
-# Custom CSS for styling
 st.markdown("""
 <style>
+    /* Main title */
     .main-title {
         color: #FFFFFF !important;
         font-size: 2.5rem;
@@ -15,6 +16,7 @@ st.markdown("""
         text-transform: none;
     }
     
+    /* Section headers */
     .section-title {
         color: #FFB433 !important;
         font-size: 1.6rem;
@@ -22,6 +24,7 @@ st.markdown("""
         text-transform: none;
     }
     
+    /* Other */
     h2 {
         color: #E5E1DA;
         font-size: 1.8rem;
@@ -32,6 +35,7 @@ st.markdown("""
         text-transform: none;
     }
     
+    /* Subsection headers */
     h3 {
         color: #B3C8CF;
         font-size: 1.4rem;
@@ -40,41 +44,48 @@ st.markdown("""
         text-transform: none;
     }
     
+    /* Captions */
     .caption {
         color: #89A8B2;
         font-size: 0.9rem;
         font-style: italic;
     }
     
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
+    /* Cards for metrics */
+    .metric-card {
+        background-color: #2C3E50;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-left: 4px solid #B3C8CF;
     }
     
-    .stTabs [data-baseweb="tab"] {
-        height: 3rem;
-        white-space: pre-wrap;
-        background-color: #E5E1DA;
-        border-radius: 4px 4px 0 0;
-        gap: 1rem;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        color: #000000;
-        font-weight: bold;
-        font-size: 1.3rem;
-        min-width: 200px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+    /* Tables */
+    .dataframe {
+        font-size: 0.9rem;
+        border-collapse: collapse;
+        width: 100%;
     }
     
-    .stTabs [aria-selected="true"] {
-        background-color: #B3C8CF;
-        color: #000000;
+    .dataframe th {
+        background-color: #2C3E50;
+        color: #E5E1DA;
+        font-weight: 600;
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 2px solid #B3C8CF;
     }
     
+    .dataframe td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #B3C8CF;
+        color: #E5E1DA;
+    }
+    
+    /* Buttons */
     .stButton button {
         background-color: #B3C8CF;
-        color: white;
+        color: #2C3E50;
         border: none;
         padding: 0.5rem 1rem;
         border-radius: 4px;
@@ -83,270 +94,295 @@ st.markdown("""
     }
     
     .stButton button:hover {
-        background-color: #FFB433;
+        background-color: #89A8B2;
+        color: #E5E1DA;
     }
+    
+    /* Status indicators */
+    .status-critical {
+        background-color: #E74C3C;
+        color: #E5E1DA;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .status-warning {
+        background-color: #F39C12;
+        color: #E5E1DA;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .status-partial {
+        background-color: #F1C40F;
+        color: #2C3E50;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .status-suitable {
+        background-color: #27AE60;
+        color: #E5E1DA;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    /* Compact layout */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 3rem;
+        white-space: pre-wrap;
+        background-color: #FFFFFF !important;
+        border-radius: 4px 4px 0 0;
+        gap: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        color: #FBF8EF;
+        font-weight: bold;
+        font-size: 1.5rem;
+        min-width: 200px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stTabs [data-baseweb="tab"]::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #FFFFFF!important;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #FFB433 !important;
+        color: #2C3E50 !important;
+    }
+    
+    .stTabs [aria-selected="true"]::after {
+        transform: scaleX(1);
+    }
+    
+    .stTabs [aria-selected="false"] {
+        opacity: 0.7;
+    }
+    
+    .stTabs [aria-selected="false"]:hover {
+        opacity: 1;
+    }
+    
+    .stTabs [aria-selected="false"]:hover::after {
+        transform: scaleX(0.5);
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="main-title">Geometric Digital Twin Verification Tool</h1>', unsafe_allow_html=True)
-
-# Optimized DQ Elements Lists (removed unwanted measures)
-FEATURE_DQ_DATA = [
+# DQ Elements Lists
+feature_dq_data = [
     {
-        "Evaluation Category": "Category: Mandatory", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Accuracy", 
-        "Measure": "Positional absolute (external)",
-        "Hint": "Alignment of the model with real-world context",
-        "Input_Type": "decimal"
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute (external)",
+        "Hint": "Alignment of the model with real-world context"
     },
     {
-        "Evaluation Category": "Category: Mandatory", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Accuracy", 
-        "Measure": "Positional relative (internal)",
-        "Hint": "Internal consistency of the model",
-        "Input_Type": "decimal"
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative (internal)",
+        "Hint": "Internal consistency of the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Commission", 
-        "Measure": "Excess items",
-        "Hint": "Items are not correctly presented in the model",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Excess items",
+        "Hint": "Items are not correctly presented in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Commission", 
-        "Measure": "Number of excess items",
-        "Hint": "The number of items within the model that are incorrectly represented or should not have been included",
-        "Input_Type": "integer"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of excess items",
+        "Hint": "The number of items within the model that are incorrectly represented or should not have been included"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Commission", 
-        "Measure": "Rate of excess items",
-        "Hint": "The number of incorrect items within the model relative to the total number of items represented",
-        "Input_Type": "calculated_rate",
-        "Depends_On": "Number of excess items"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Rate of excess items",
+        "Hint": "The number of incorrect items within the model relative to the total number of items represented"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Commission", 
-        "Measure": "Number of duplicate items",
-        "Hint": "The total number of duplications within the model",
-        "Input_Type": "integer"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Commission", "Measure": "Number of duplicate items",
+        "Hint": "The total number of duplications within the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Omission", 
-        "Measure": "Missing items",
-        "Hint": "Required items are missing in the model",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Missing items",
+        "Hint": "Required items are missing in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Omission", 
-        "Measure": "Number of missing items",
-        "Hint": "The number of missing items that should have been presented in the model",
-        "Input_Type": "integer"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Number of missing items",
+        "Hint": "The number of missing items that should have been presented in the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Completeness", 
-        "Sub-Type": "Sub-Type: Omission", 
-        "Measure": "Rate of missing items",
-        "Hint": "The number of missing items in the model or sample relative to the total number of items represented",
-        "Input_Type": "calculated_rate",
-        "Depends_On": "Number of missing items"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Completeness", "Sub-Type": "Sub-Type: Omission", "Measure": "Rate of missing items",
+        "Hint": "The number of missing items in the model or sample relative to the total number of items represented"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Temporal Quality", 
-        "Measure": "Number of incorrectly classified items",
-        "Hint": "The total number of incorrectly classified items",
-        "Input_Type": "integer"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Number of incorrectly classified items",
+        "Hint": "The total number of incorrectly classified items"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Temporal Quality", 
-        "Measure": "Misclassification rate",
-        "Hint": "The ratio of incorrectly classified items to the total number of items",
-        "Input_Type": "calculated_rate",
-        "Depends_On": "Number of incorrectly classified items"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Misclassification rate",
+        "Hint": "The ratio of incorrectly classified items to the total number of items"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Interoperability", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "Data model compliance",
-        "Hint": "Compliance with interoperability requirements",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Data model compliance",
+        "Hint": "Compliance with interoperability requirements"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Generalization", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "LoD compliance",
-        "Hint": "The degree to which the model meets the required LoD",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Generalization", "Sub-Type": "Sub-Type: N/A", "Measure": "LoD compliance",
+        "Hint": "The degree to which the model meets the required LoD"
     },
     {
-        "Evaluation Category": "Category: Optional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "Conceptual schema compliance",
-        "Hint": "Items are compliant with the definitions or rules of the relevant conceptual schema",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Conceptual schema compliance",
+        "Hint": "Items are compliant with the definitions or rules of the relevant conceptual schema"
     },
     {
-        "Evaluation Category": "Category: Optional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "Number of items not compliant",
-        "Hint": "The total number of items that are not compliant with the definitions or rules of the relevant conceptual schema",
-        "Input_Type": "integer"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Number of items not compliant",
+        "Hint": "The total number of items that are not compliant with the definitions or rules of the relevant conceptual schema"
     },
     {
-        "Evaluation Category": "Category: Optional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "Not compliant rate",
-        "Hint": "The number of items that are not compliant with the definitions or rules of the relevant conceptual schema relative to the total number of items",
-        "Input_Type": "calculated_rate",
-        "Depends_On": "Number of items not compliant"
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: N/A", "Measure": "Not compliant rate",
+        "Hint": "The number of items that are not compliant with the definitions or rules of the relevant conceptual schema relative to the total number of items"
     },
     {
-        "Evaluation Category": "Category: Optional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Temporal Quality", 
-        "Measure": "Temporal accuracy",
-        "Hint": "Accuracy of the temporal attributes of the data",
-        "Input_Type": "text_with_unit"
-    }
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Temporal accuracy",
+        "Hint": "Accuracy of the temporal attributes of the data"
+    },
 ]
 
-SCALE_DQ_DATA = [
+scale_dq_data = [
     {
-        "Evaluation Category": "Category: Mandatory", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Accuracy", 
-        "Measure": "Positional absolute (external)",
-        "Hint": "Alignment of the model with real-world context",
-        "Input_Type": "decimal"
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional absolute (external)",
+        "Hint": "Alignment of the model with real-world context"
     },
     {
-        "Evaluation Category": "Category: Mandatory", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Accuracy", 
-        "Measure": "Positional relative (internal)",
-        "Hint": "Internal consistency of the model",
-        "Input_Type": "decimal"
+        "Evaluation Category": "Category: Mandatory", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Accuracy", "Measure": "Positional relative (internal)",
+        "Hint": "Internal consistency of the model"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Interoperability", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "Data model compliance",
-        "Hint": "Compliance with interoperability requirements",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Interoperability", "Sub-Type": "Sub-Type: N/A", "Measure": "Data model compliance",
+        "Hint": "Compliance with interoperability requirements"
     },
     {
-        "Evaluation Category": "Category: Conditional", 
-        "DQ Type": "Type: Generalization", 
-        "Sub-Type": "Sub-Type: N/A", 
-        "Measure": "LoD compliance",
-        "Hint": "The degree to which the model meets the required LoD",
-        "Input_Type": "yes_no"
+        "Evaluation Category": "Category: Conditional", "DQ Type": "Type: Generalization", "Sub-Type": "Sub-Type: N/A", "Measure": "LoD compliance",
+        "Hint": "The degree to which the model meets the required LoD"
     },
     {
-        "Evaluation Category": "Category: Optional", 
-        "DQ Type": "Type: Consistency", 
-        "Sub-Type": "Sub-Type: Temporal Quality", 
-        "Measure": "Temporal accuracy",
-        "Hint": "Accuracy of the temporal attributes of the data",
-        "Input_Type": "text_with_unit"
-    }
+        "Evaluation Category": "Category: Optional", "DQ Type": "Type: Consistency", "Sub-Type": "Sub-Type: Temporal Quality", "Measure": "Temporal accuracy",
+        "Hint": "Accuracy of the temporal attributes of the data"
+    },
 ]
 
-# Rate calculation mapping
-RATE_MEASURES = {
-    "Rate of excess items": "Number of excess items",
-    "Rate of missing items": "Number of missing items",
-    "Misclassification rate": "Number of incorrectly classified items",
-    "Not compliant rate": "Number of items not compliant"
-}
+# Helper functions for measure lists
+def get_feature_measure_lists():
+    """Get the measure lists for feature-based evaluation"""
+    return {
+        "number_only": [
+            "Number of excess items",
+            "Number of missing items", 
+            "Number of incorrectly classified items",
+            "Number of items not compliant",
+            "Number of duplicate items"
+        ],
+        "decimal": [
+            "Positional absolute (external)",
+            "Positional relative (internal)"
+        ],
+        "yes_no": [
+            "Excess items",
+            "Missing items",
+            "Data model compliance",
+            "LoD compliance",
+            "Conceptual schema non-compliance",
+            "Conceptual schema compliance"
+        ],
+        "rate": {
+            "Rate of excess items": "Number of excess items",
+            "Rate of missing items": "Number of missing items",
+            "Misclassification rate": "Number of incorrectly classified items",
+            "Not compliant rate": "Number of items not compliant"
+        }
+    }
 
-def create_input_field(dq, index, tab_prefix, total_features=None):
-    """Create appropriate input field based on measure type"""
-    measure = dq["Measure"]
-    input_type = dq["Input_Type"]
-    key = f"{tab_prefix}_{index}"
+def get_scale_measure_lists():
+    """Get the measure lists for scale-based evaluation"""
+    return {
+        "number_only": [],
+        "yes_no": [
+            "Data model compliance",
+            "LoD compliance"
+        ]
+    }
+
+def create_dq_input(dq, i, tab_prefix, measure_lists, data_list, total_features=0, input_type="feature"):
+    """Create input field for a DQ measure"""
+    dq_input = {"Measure": dq["Measure"]}
+    value_key = f"{tab_prefix}_{input_type}_value_{i}"
+    unit_key = f"{tab_prefix}_{input_type}_unit_{i}"
     
-    if input_type == "decimal":
-        return st.number_input(
-            f"🔢 Enter value for `{measure}`",
+    if dq["Measure"] in measure_lists.get("decimal", []):
+        dq_input["Value"] = st.number_input(
+            f"🔢 Enter value for `{dq['Measure']}`",
             min_value=0.0,
             format="%.3f",
             step=0.001,
-            key=f"{key}_value"
+            key=value_key
         )
-    elif input_type == "integer":
-        return st.number_input(
-            f"🔢 Enter value for `{measure}`",
+    elif dq["Measure"] in measure_lists.get("number_only", []):
+        dq_input["Value"] = st.number_input(
+            f"🔢 Enter value for `{dq['Measure']}`",
             min_value=0,
             step=1,
-            key=f"{key}_value"
+            key=value_key
         )
-    elif input_type == "yes_no":
-        return st.radio(
-            f"Select for `{measure}`",
+    elif dq["Measure"] in measure_lists.get("yes_no", []):
+        dq_input["Value"] = st.radio(
+            f"Select for `{dq['Measure']}`",
             options=["Yes", "No"],
-            key=f"{key}_value"
+            key=value_key
         )
-    elif input_type == "calculated_rate":
-        if measure in RATE_MEASURES and total_features:
-            depends_on = RATE_MEASURES[measure]
-            # Find the corresponding number measure
-            data_list = FEATURE_DQ_DATA if "feature" in tab_prefix else SCALE_DQ_DATA
-            number_index = next((i for i, d in enumerate(data_list) if d["Measure"] == depends_on), None)
-            
-            if number_index is not None:
-                number_value = st.session_state.get(f"{tab_prefix}_{number_index}_value", 0)
-                if isinstance(number_value, (int, float)) and total_features > 0:
-                    rate = (number_value / total_features) * 100
-                    st.markdown(f"**Calculated Rate:** {rate:.2f}%")
-                    return f"{rate:.2f}%"
-                else:
-                    st.info(f"Please enter a valid number for {depends_on} to calculate the rate.")
-                    return "N/D"
+    elif dq["Measure"] in measure_lists.get("rate", {}):
+        # Rate calculation logic
+        number_measure = measure_lists["rate"][dq["Measure"]]
+        number_measure_index = next((j for j, d in enumerate(data_list) if d["Measure"] == number_measure), None)
+        
+        if number_measure_index is not None and total_features > 0:
+            number_value = st.session_state.get(f"{tab_prefix}_{input_type}_value_{number_measure_index}", 0)
+            if isinstance(number_value, (int, float)):
+                rate = (number_value / total_features) * 100
+                dq_input["Value"] = f"{rate:.2f}%"
+                st.markdown(f"**Calculated Rate:** {rate:.2f}%")
             else:
-                st.info(f"Could not find the corresponding number measure for {measure}")
-                return "N/D"
+                dq_input["Value"] = "N/D"
+                st.info(f"Please enter a valid number for {number_measure} to calculate the rate.")
         else:
+            dq_input["Value"] = "N/D"
             st.info("Please enter the total number of features to calculate the rate.")
-            return "N/D"
-    else:  # text_with_unit
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            value = st.text_input(f"🔢 Enter value for `{measure}`", key=f"{key}_value")
-        with col2:
-            unit = st.text_input(f"📏 Unit", key=f"{key}_unit")
-        return {"value": value, "unit": unit}
-
-def create_model_verification_form(tab_prefix, model_name):
-    """Create the model verification form"""
-    st.markdown(f'<h1 class="section-title" style="font-size: 1.4rem;">{model_name}</h1>', unsafe_allow_html=True)
+    else:
+        dq_input["Value"] = st.text_input(f"🔢 Enter value for `{dq['Measure']}`", key=value_key)
+        dq_input["Unit"] = st.text_input(f"📏 Unit for `{dq['Measure']}`", key=unit_key)
     
-    # GDT Characteristics
+    return dq_input
+
+# Create tabs
+tab1, tab2, tab3 = st.tabs(["Model G(0)", "Model G(t)", "Verification Results"])
+
+# Function to create the model verification form
+def create_model_verification_form(tab_prefix=""):
+    # --- 1. GDT Characteristics ---
+    model_name = "Model G(0)" if tab_prefix == "g0" else "Model G(t)"
+    st.markdown(f'<h1 class="section-title" style="font-size: 1.4rem;">{model_name}</h1>', unsafe_allow_html=True)
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 1. Geometric Digital Twin Characteristics</h2>', unsafe_allow_html=True)
     
     if tab_prefix == "g0":
@@ -354,66 +390,63 @@ def create_model_verification_form(tab_prefix, model_name):
     else:
         # For Model G(t), use the value from Model G(0)
         g0_scale = st.session_state.get("g0_gdt_scale", "Building Part")
-        st.selectbox("Scale", ["Building Part", "Building", "Site", "Urban"], 
-                    key=f"{tab_prefix}_gdt_scale", 
-                    index=["Building Part", "Building", "Site", "Urban"].index(g0_scale), 
-                    disabled=True)
+        st.selectbox("Scale", ["Building Part", "Building", "Site", "Urban"], key=f"{tab_prefix}_gdt_scale", index=["Building Part", "Building", "Site", "Urban"].index(g0_scale), disabled=True)
     
     gdt_scale_value = st.text_input("Scale Value (optional)", key=f"{tab_prefix}_gdt_scale_value")
-    gdt_stage = st.selectbox("Building Life Cycle Stage", 
-                            ["Pre-construction", "Construction A5", "Use B1-B2", "Use B3-B5", "End of Life", "Beyond Life Cycle"], 
-                            key=f"{tab_prefix}_gdt_stage")
+    gdt_stage = st.selectbox("Building Life Cycle Stage", ["Pre-construction", "Construction A5", "Use B1-B2", "Use B3-B5", "End of Life", "Beyond Life Cycle"], key=f"{tab_prefix}_gdt_stage")
     agr = st.number_input("Average Ground Resolution (AGR) of Model [mm/px]", format="%.3f", key=f"{tab_prefix}_agr")
 
-    # Sample Election
+    # --- 2. Sample Election ---
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 2. Sample for Verification</h2>', unsafe_allow_html=True)
-    
     if tab_prefix == "g0":
         sample_type = st.radio("Sample Type", ["Feature-based", "Scale-based"], key=f"{tab_prefix}_sample_type")
     else:
+        # For Model G(t), use the value from Model G(0)
         g0_sample_type = st.session_state.get("g0_sample_type", "Feature-based")
-        st.radio("Sample Type", ["Feature-based", "Scale-based"], 
-                key=f"{tab_prefix}_sample_type", 
-                index=["Feature-based", "Scale-based"].index(g0_sample_type), 
-                disabled=True)
+        st.radio("Sample Type", ["Feature-based", "Scale-based"], key=f"{tab_prefix}_sample_type", index=["Feature-based", "Scale-based"].index(g0_sample_type), disabled=True)
         sample_type = g0_sample_type
 
     if sample_type == "Feature-based":
         total_features = st.number_input("Total Number of Features (items)", min_value=0, value=0, key=f"{tab_prefix}_total_features")
     else:
         sample_scale = st.text_input("Sample Scale (optional)", key=f"{tab_prefix}_sample_scale")
-        total_features = None
 
-    # Parameters for Updating (only in G(0))
-    if tab_prefix == "g0":
+    # --- 3. Parameters for Updating ---
+    if tab_prefix == "g0":  # Only show this section in Model G(0) tab
         st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 3. Parameters for Updating (optional)</h2>', unsafe_allow_html=True)
         updates = st.number_input("Number of Previous Updates", min_value=0, key=f"{tab_prefix}_updates")
         schedule = st.selectbox("Update Schedule", ["Planned", "Event-driven"], key=f"{tab_prefix}_schedule")
         survey_type = st.selectbox("Survey Type", ["Image-based", "Range-based"], key=f"{tab_prefix}_survey_type")
         acq_sequence = st.selectbox("Data Acquisition Sequence", ["Parallel", "Sequential", "Mixed"], key=f"{tab_prefix}_acq_sequence")
 
-    # LoD Calculation
+    # --- 4. LoD Calculation ---
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 4. LoD Calculation</h2>', unsafe_allow_html=True)
     suggested_lod = calculate_lod(agr)
     st.markdown(f'<p style="color: #FFB433;"><strong>Suggested LoD:</strong> {suggested_lod}</p>', unsafe_allow_html=True)
 
-    # Feature's RMSE
+    match = re.search(r'LoD (\d\.\d)', suggested_lod)
+    if match:
+        lod_value = float(match.group(1))
+        if 2.1 <= lod_value <= 3.2:
+            verified_lod = st.selectbox(
+                "Verified LoD", [
+                    "LoD 2.1", "LoD 2.2", "LoD 2.3", "LoD 3.0", "LoD 3.3", "LoD 4"
+                ], key=f"{tab_prefix}_verified_lod"
+            )
+    
+    # RMSE field
     st.markdown('<h3 style="font-size: 1.4rem;">Feature\'s RMSE (optional)</h3>', unsafe_allow_html=True)
     st.markdown("*RMSE of the actual dimensions of specific elements (e.g., roof elements, windows) between the model and real-world measurements obtained with more precise equipment*")
     rmse_value = st.number_input("Value", min_value=0.0, format="%.2f", key=f"{tab_prefix}_rmse_value")
 
-    # GSD & Model Resolution
+    # --- 4.1 GSD & Model Resolution ---
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 4.1 Ground Sample Distance (GSD) Calculation</h2>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        sensor_size = st.number_input("Sensor size (mm)", min_value=0.0, key=f"{tab_prefix}_sensor_size")
-        focal_length = st.number_input("Focal length (mm)", min_value=0.0, key=f"{tab_prefix}_focal_length")
-    with col2:
-        flight_height = st.number_input("Flight height (m)", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
-        image_width = st.number_input("Image width (px)", min_value=1, value=None, key=f"{tab_prefix}_image_width")
+    sensor_size = st.number_input("Sensor size (mm)", min_value=0.0, key=f"{tab_prefix}_sensor_size")
+    focal_length = st.number_input("Focal length (mm)", min_value=0.0, key=f"{tab_prefix}_focal_length")
+    flight_height = st.number_input("Flight height (m)", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
+    image_width = st.number_input("Image width (px)", min_value=1, value=None, key=f"{tab_prefix}_image_width")
 
-    # Calculate GSD if all values are provided
+    # Do all required values are entered and valid
     if all([sensor_size > 0, focal_length > 0, flight_height > 0, image_width is not None and image_width > 0]):
         gsd = calculate_gsd(sensor_size, focal_length, flight_height, image_width)
         model_resolution = model_resolution_control(gsd, agr)
@@ -421,331 +454,243 @@ def create_model_verification_form(tab_prefix, model_name):
         st.write(f"**Calculated GSD:** {gsd:.4f} mm")
         st.write(f"**Resolution Achieved:** {model_resolution * 100:.2f}%")
         
+        # Store resolution value in session state
         st.session_state[f"{tab_prefix}_model_resolution"] = model_resolution
     else:
         st.info("Please enter all required values to calculate GSD and Resolution Achieved.")
+        # Clear any previously stored resolution value
         st.session_state[f"{tab_prefix}_model_resolution"] = None
 
-    # Data Quality Elements
+    # --- 5. Data Quality Elements ---
     st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Step 5. Data Quality Elements</h2>', unsafe_allow_html=True)
-    
-    data_list = FEATURE_DQ_DATA if sample_type == "Feature-based" else SCALE_DQ_DATA
-    selected_dq = []
-    
-    st.markdown('<h3 style="color: #B3C8CF; font-size: 1.2rem;">📋 Data Quality Checklist</h3>', unsafe_allow_html=True)
 
-    for i, dq in enumerate(data_list):
-        # For Model G(t), only show measures selected in Model G(0)
-        if tab_prefix == "gt" and not st.session_state.get(f"g0_{i}_check", False):
-            continue
-            
-        col1, col2 = st.columns([0.1, 0.9])
-        
-        with col1:
-            if tab_prefix == "g0":
-                checked = st.checkbox("", key=f"{tab_prefix}_{i}_check")
-            else:
-                # For Model G(t), automatically check if it was selected in G(0)
-                checked = st.session_state.get(f"g0_{i}_check", False)
-                st.checkbox("", value=checked, key=f"{tab_prefix}_{i}_check", disabled=True)
-        
-        with col2:
-            st.markdown(f"**{dq['Measure']}**  \n*{dq['Evaluation Category']} | {dq['DQ Type']} | {dq.get('Sub-Type', '')}*  \n:gray[{dq['Hint']}]")
-
-        if checked:
-            dq_input = {"Measure": dq["Measure"]}
-            
-            if sample_type == "Feature-based":
-                total_for_calc = total_features
-            else:
-                total_for_calc = None
-                
-            value = create_input_field(dq, i, f"{tab_prefix}", total_for_calc)
-            
-            if isinstance(value, dict):  # text_with_unit
-                dq_input["Value"] = value["value"] if value["value"] else "N/D"
-                dq_input["Unit"] = value["unit"] if value["unit"] else "N/D"
-            else:
-                dq_input["Value"] = value if value else "N/D"
-                dq_input["Unit"] = "N/A"
-            
-            selected_dq.append(dq_input)
-            st.markdown("---")
-
-    # Display summary
-    if selected_dq:
-        st.markdown("### Selected DQ Elements Summary")
-        summary_df = pd.DataFrame(selected_dq)
-        st.dataframe(summary_df, use_container_width=True, hide_index=True)
-    else:
-        st.info("Please select DQ measures to evaluate.")
-
-def create_verification_results():
-    """Create the verification results tab"""
-    st.markdown('<h1 class="section-title" style="font-size: 1.4rem;">Verification Results</h1>', unsafe_allow_html=True)
-    
-    # Basic Information
-    gdt_scale = st.session_state.get("g0_gdt_scale", "Not specified")
-    st.markdown(f'<p><span style="font-weight: bold;">Scale:</span> {gdt_scale}</p>', unsafe_allow_html=True)
-
-    g0_stage = st.session_state.get("g0_gdt_stage", "Not specified")
-    gt_stage = st.session_state.get("gt_gdt_stage", "Not specified")
-    
-    st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Building Life Cycle Stage</h2>', unsafe_allow_html=True)
-    st.write(f"**Model G(0):** {g0_stage}")
-    st.write(f"**Model G(t):** {gt_stage}")
-    
-    # Sample Information
-    sample_type = st.session_state.get("g0_sample_type", "Not specified")
-    st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Sample for Verification</h2>', unsafe_allow_html=True)
-    st.write(f"**Selected Type:** {sample_type}")
-    
     if sample_type == "Feature-based":
-        total_features = st.session_state.get("g0_total_features", "Not specified")
-        st.write(f"**Total number of features (items):** {total_features}")
-    elif sample_type == "Scale-based":
-        sample_scale = st.session_state.get("g0_sample_scale", "Not specified")
-        st.write(f"**Sample scale:** {sample_scale}")
+        st.markdown('<h3 style="font-size: 1.2rem;">Feature-based Evaluation</h3>', unsafe_allow_html=True)
+        feature_selected_dq = []
 
-    # LoD Summary
-    st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">LoD Calculation Summary</h2>', unsafe_allow_html=True)
-    
-    g0_agr = st.session_state.get("g0_agr", "N/D")
-    g0_suggested_lod = calculate_lod(g0_agr) if g0_agr != "N/D" else "N/D"
-    g0_rmse = st.session_state.get("g0_rmse_value", "N/D")
-    
-    gt_agr = st.session_state.get("gt_agr", "N/D")
-    gt_suggested_lod = calculate_lod(gt_agr) if gt_agr != "N/D" else "N/D"
-    gt_rmse = st.session_state.get("gt_rmse_value", "N/D")
-    
-    lod_summary_data = {
-        "Model version": ["Model G(0)", "Model G(t)"],
-        "AGR of model": [f"{g0_agr} mm/px" if g0_agr != "N/D" else "N/D", 
-                        f"{gt_agr} mm/px" if gt_agr != "N/D" else "N/D"],
-        "Suggested LoD": [g0_suggested_lod, gt_suggested_lod],
-        "Resolution achieved": [f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "N/D",
-                              f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "N/D"],
-        "Feature's RMSE": [f"{g0_rmse}" if g0_rmse != "N/D" else "N/D",
-                          f"{gt_rmse}" if gt_rmse != "N/D" else "N/D"]
-    }
-    
-    lod_summary_df = pd.DataFrame(lod_summary_data)
-    st.dataframe(lod_summary_df, use_container_width=True, hide_index=True)
+        st.markdown('<h3 style="color: #B3C8CF; font-size: 1.2rem;">📋 Data Quality Checklist</h3>', unsafe_allow_html=True)
 
-    # Decision Model
-    st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model based on Mandatory Data Quality Elements</h2>', unsafe_allow_html=True)
-    
-    # Models alignment data
-    st.markdown('<h3 style="color: #E5E1DA; font-size: 1.2rem;">Models Alignment Data (optional)</h3>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        mean_deviation = st.number_input("Mean of geometric deviations μ", format="%.3f", key="mean_deviation")
-    with col2:
-        std_deviation = st.number_input("Standard deviation σ", format="%.3f", key="std_deviation")
-    
-    if mean_deviation != 0 and std_deviation != 0:
-        deviation_threshold = mean_deviation + 2 * std_deviation
-        st.write(f"**Deviation threshold δpos:** {deviation_threshold:.3f}")
+        if tab_prefix == "g0":
+            # For Model G(0), show all measures
+            for i, dq in enumerate(feature_dq_data):
+                col1, col2 = st.columns([0.1, 0.9])
+                with col1:
+                    checked = st.checkbox("", key=f"{tab_prefix}_feature_check_{i}")
+                with col2:
+                    st.markdown(f"**{dq['Measure']}**  \n*{dq['Evaluation Category']} | {dq['DQ Type']} | {dq.get('Sub-Type', '')}*  \n:gray[{dq['Hint']}]")
 
-    # Condition 1: Model Accuracy Verification
-    st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 1: Model Accuracy Verification</h3>', unsafe_allow_html=True)
-    
-    # Calculate Dacc
-    data_list = FEATURE_DQ_DATA if sample_type == "Feature-based" else SCALE_DQ_DATA
-    g0_abs_pos = g0_rel_pos = gt_abs_pos = gt_rel_pos = None
-    
-    for i, dq in enumerate(data_list):
-        if dq["Measure"] == "Positional absolute (external)":
-            if st.session_state.get(f"g0_{i}_check", False):
-                g0_abs_pos = st.session_state.get(f"g0_{i}_value", 0)
-            if st.session_state.get(f"gt_{i}_check", False):
-                gt_abs_pos = float(gt_abs_pos) if isinstance(gt_abs_pos, str) else gt_abs_pos
-            gt_rel_pos = float(gt_rel_pos) if isinstance(gt_rel_pos, str) else gt_rel_pos
-            
-            dacc = abs((1 - (gt_rel_pos/g0_rel_pos)) - (1 - (gt_abs_pos/g0_abs_pos)))
-            st.write(f"**Accuracy difference between models Dacc:** {dacc:.3f}")
-        except (ValueError, TypeError, ZeroDivisionError) as e:
-            st.write("**Accuracy difference between models Dacc:** Not calculated")
-            st.caption(f"Error in calculation: {str(e)}")
-    else:
-        st.write("**Accuracy difference between models Dacc:** Not calculated")
-        st.caption("All required positional accuracy measures must be provided and non-zero")
-    
-    delta_d = st.number_input("δD (Accuracy difference threshold)", format="%.3f", key="delta_d")
-    
-    if dacc is not None and delta_d != 0:
-        comparison_result = "Consistent accuracy in both models" if dacc < delta_d else "Decline in model G(t) accuracy"
-        st.write(f"**Dacc vs. δD comparison:** {comparison_result}")
-
-    # Condition 2: Model LoD Verification
-    st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: Model LoD Verification</h3>', unsafe_allow_html=True)
-    
-    if g0_suggested_lod != "N/D" and gt_suggested_lod != "N/D":
-        lod_comparison = "Consistent LoD for both models" if g0_suggested_lod == gt_suggested_lod else "Inconsistent LoD"
-        st.write(f"**LoD Verification:** {lod_comparison}")
-    else:
-        st.write("**LoD Verification:** Not calculated")
-
-    # Condition 3: Model Resolution Verification
-    st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
-    
-    g0_resolution = st.session_state.get('g0_model_resolution')
-    gt_resolution = st.session_state.get('gt_model_resolution')
-    
-    if g0_resolution is not None and gt_resolution is not None:
-        resolution_comparison = "Decline in model G(t) resolution" if gt_resolution < g0_resolution else "Increase in model G(t) resolution"
-        st.write(f"**Resolution Verification:** {resolution_comparison}")
-    else:
-        st.write("**Resolution Verification:** Not calculated")
-
-    # Verification Score
-    can_calculate_condition1 = dacc is not None and delta_d != 0
-    can_calculate_condition2 = g0_suggested_lod != "N/D" and gt_suggested_lod != "N/D"
-    can_calculate_condition3 = g0_resolution is not None and gt_resolution is not None
-    
-    if can_calculate_condition1 and can_calculate_condition2 and can_calculate_condition3:
-        st.markdown('<h2 style="color: #fbd57a; font-size: 1.4rem;">Verification Score</h2>', unsafe_allow_html=True)
-        
-        conditions_fulfilled = 0
-        
-        if dacc < delta_d:
-            conditions_fulfilled += 1
-        if g0_suggested_lod == gt_suggested_lod:
-            conditions_fulfilled += 1
-        if gt_resolution >= g0_resolution:
-            conditions_fulfilled += 1
-        
-        if conditions_fulfilled == 0:
-            score = "❌ Critical"
-            color = "#FF0000"
-            message = "Decline in all metrics for model G(t). Unsuitable for the updating process."
-        elif conditions_fulfilled == 1:
-            score = "⚠️ Warning"
-            color = "#FFA500"
-            message = "Only one of three conditions is fulfilled. Decline in metrics for model G(t). Unsuitable for the updating process."
-        elif conditions_fulfilled == 2:
-            score = "⚠️ Partial"
-            color = "#FFD700"
-            message = "Two of three conditions are fulfilled. Model is suitable for partial updating."
+                if checked:
+                    measure_lists = get_feature_measure_lists()
+                    total_features = st.session_state.get(f"{tab_prefix}_total_features", 0)
+                    dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, feature_dq_data, total_features)
+                    feature_selected_dq.append(dq_input)
+                    st.markdown("---")
         else:
-            score = "✅ Suitable"
-            color = "#008000"
-            message = "Model G(t) outperforms model G(0). Suitable for updating."
-        
-        st.markdown(f"""
-        <div style='background-color: {color}; padding: 20px; border-radius: 10px; color: white;'>
-            <h2 style='margin: 0;'>{score}</h2>
-            <p style='margin: 10px 0 0 0;'>{message}</p>
-        </div>
-        """, unsafe_allow_html=True)
+            # For Model G(t), show only measures selected in Model G(0)
+            for i, dq in enumerate(feature_dq_data):
+                if st.session_state.get(f"g0_feature_check_{i}", False):
+                    # Set the check state for Model G(t) to match Model G(0)
+                    st.session_state[f"gt_feature_check_{i}"] = True
+                    st.markdown(f"**{dq['Measure']}**  \n*{dq['Evaluation Category']} | {dq['DQ Type']} | {dq.get('Sub-Type', '')}*  \n:gray[{dq['Hint']}]")
+                    
+                    measure_lists = get_feature_measure_lists()
+                    total_features = st.session_state.get(f"{tab_prefix}_total_features", 0)
+                    dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, feature_dq_data, total_features)
+                    feature_selected_dq.append(dq_input)
+                    st.markdown("---")
 
-def download_csv_data(prefix, model_name):
-    """Generate CSV data for download"""
-    import csv
-    import io
-    
-    csv_data = []
-    
-    # GDT Characteristics
-    csv_data.extend([
-        ["GDT Characteristics", "", ""],
-        ["Scale", st.session_state.get(f"{prefix}_gdt_scale", "Not specified"), ""],
-        ["Scale Value", st.session_state.get(f"{prefix}_gdt_scale_value", "Not specified"), ""],
-        ["Building Life Cycle Stage", st.session_state.get(f"{prefix}_gdt_stage", "Not specified"), ""],
-        ["AGR of model", st.session_state.get(f"{prefix}_agr", "Not specified"), "mm/px"],
-        ["", "", ""]
-    ])
-    
-    # Sample for Verification
-    sample_type = st.session_state.get(f"{prefix}_sample_type", "Not specified")
-    csv_data.extend([
-        ["Sample for Verification", "", ""],
-        ["Sample Type", sample_type, ""]
-    ])
-    
-    if sample_type == "Feature-based":
-        csv_data.append(["Total Features", st.session_state.get(f"{prefix}_total_features", "Not specified"), ""])
-    else:
-        csv_data.append(["Sample Scale", st.session_state.get(f"{prefix}_sample_scale", "Not specified"), ""])
-    
-    csv_data.append(["", "", ""])
-    
-    # Parameters for Updating (only for G(0))
-    if prefix == "g0":
-        csv_data.extend([
-            ["Parameters for Updating", "", ""],
-            ["Number of Previous Updates", st.session_state.get(f"{prefix}_updates", "Not specified"), ""],
-            ["Update Schedule", st.session_state.get(f"{prefix}_schedule", "Not specified"), ""],
-            ["Survey Type", st.session_state.get(f"{prefix}_survey_type", "Not specified"), ""],
-            ["Data Acquisition Sequence", st.session_state.get(f"{prefix}_acq_sequence", "Not specified"), ""],
-            ["", "", ""]
-        ])
-    
-    # LoD Calculation
-    agr = st.session_state.get(f"{prefix}_agr", 0)
-    csv_data.extend([
-        ["LoD Calculation", "", ""],
-        ["Suggested LoD", calculate_lod(agr) if agr > 0 else "Not calculated", ""],
-        ["Feature's RMSE", st.session_state.get(f"{prefix}_rmse_value", "Not specified"), ""],
-        ["", "", ""]
-    ])
-    
-    # GSD Calculation
-    sensor_size = st.session_state.get(f'{prefix}_sensor_size')
-    focal_length = st.session_state.get(f'{prefix}_focal_length')
-    flight_height = st.session_state.get(f'{prefix}_flight_height')
-    image_width = st.session_state.get(f'{prefix}_image_width')
-    
-    if all(v is not None and v > 0 for v in [sensor_size, focal_length, flight_height, image_width]):
-        gsd = calculate_gsd(sensor_size, focal_length, flight_height, image_width)
-        gsd_value = f"{gsd:.4f} mm"
-    else:
-        gsd_value = "Not calculated"
-    
-    csv_data.extend([
-        ["GSD Calculation", "", ""],
-        ["Sensor Size", st.session_state.get(f"{prefix}_sensor_size", "Not specified"), "mm"],
-        ["Focal Length", st.session_state.get(f"{prefix}_focal_length", "Not specified"), "mm"],
-        ["Flight Height", st.session_state.get(f"{prefix}_flight_height", "Not specified"), "m"],
-        ["Image Width", st.session_state.get(f"{prefix}_image_width", "Not specified"), "px"],
-        ["Calculated GSD", gsd_value, ""],
-        ["Resolution Achieved", f"{st.session_state.get(f'{prefix}_model_resolution', 0) * 100:.2f}%" if st.session_state.get(f'{prefix}_model_resolution') is not None else "Not calculated", ""],
-        ["", "", ""]
-    ])
-    
-    # Selected Measures
-    csv_data.append(["Selected Measures", "", ""])
-    sample_type = st.session_state.get(f"{prefix}_sample_type", "Feature-based")
-    data_list = FEATURE_DQ_DATA if sample_type == "Feature-based" else SCALE_DQ_DATA
-    
-    for i, dq in enumerate(data_list):
-        if st.session_state.get(f"{prefix}_{i}_check", False):
-            csv_data.append([
-                dq["Measure"],
-                st.session_state.get(f"{prefix}_{i}_value", "Not specified"),
-                st.session_state.get(f"{prefix}_{i}_unit", "N/A")
-            ])
-    
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerows(csv_data)
-    
-    return output.getvalue()
+        if feature_selected_dq:
+            st.markdown("### Selected DQ Elements Summary")
+            
+            for item in feature_selected_dq:
+                # Value column
+                if "Value" not in item or not item["Value"]:
+                    item["Value"] = "N/D"
+                
+                # Unit column
+                if "Unit" in item:
+                    item["Unit"] = item["Unit"] if item["Unit"] else "N/D"
+                else:
+                    item["Unit"] = "N/A"
+                
+                # Description column
+                if "Description" in item:
+                    item["Description"] = item["Description"] if item["Description"] else "N/D"
+                else:
+                    item["Description"] = "N/A"
+            
+            summary_df = pd.DataFrame(feature_selected_dq)
+            st.dataframe(summary_df)
+        else:
+            st.info("Please select DQ measures to evaluate.")
 
-# Main App
-tab1, tab2, tab3 = st.tabs(["Model G(0)", "Model G(t)", "Verification Results"])
+    elif sample_type == "Scale-based":
+        st.markdown('<h3 style="font-size: 1.2rem;">Scale-based Evaluation</h3>', unsafe_allow_html=True)
 
+        scale_selected_dq = []
+
+        st.markdown("### 📋 Data Quality Checklist")
+
+        if tab_prefix == "g0":
+            # For Model G(0), show all measures
+            for i, dq in enumerate(scale_dq_data):
+                col1, col2 = st.columns([0.1, 0.9])
+                with col1:
+                    checked = st.checkbox("", key=f"{tab_prefix}_scale_check_{i}")
+                with col2:
+                    st.markdown(f"**{dq['Measure']}**  \n*{dq['Evaluation Category']} | {dq['DQ Type']} | {dq.get('Sub-Type', '')}*  \n:gray[{dq['Hint']}]")
+
+                if checked:
+                    measure_lists = get_scale_measure_lists()
+                    dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, scale_dq_data, input_type="scale")
+                    scale_selected_dq.append(dq_input)
+                    st.markdown("---")
+        else:
+            # For Model G(t), show only measures selected in Model G(0)
+            for i, dq in enumerate(scale_dq_data):
+                if st.session_state.get(f"g0_scale_check_{i}", False):
+                    # State of check for Model G(t) to match Model G(0)
+                    st.session_state[f"gt_scale_check_{i}"] = True
+                    st.markdown(f"**{dq['Measure']}**  \n*{dq['Evaluation Category']} | {dq['DQ Type']} | {dq.get('Sub-Type', '')}*  \n:gray[{dq['Hint']}]")
+                    
+                    measure_lists = get_scale_measure_lists()
+                    dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, scale_dq_data, input_type="scale")
+                    scale_selected_dq.append(dq_input)
+                    st.markdown("---")
+
+        if scale_selected_dq:
+            st.markdown("### Selected DQ Elements Summary")
+            # Process the data before creating DataFrame
+            for item in scale_selected_dq:
+                # Handle Value column
+                if "Value" not in item or not item["Value"]:
+                    item["Value"] = "N/D"
+                
+                # Handle Unit column
+                if "Unit" in item:
+                    item["Unit"] = item["Unit"] if item["Unit"] else "N/D"
+                else:
+                    item["Unit"] = "N/A"
+                
+                # Handle Description column
+                if "Description" in item:
+                    item["Description"] = item["Description"] if item["Description"] else "N/D"
+                else:
+                    item["Description"] = "N/A"
+            
+            summary_df = pd.DataFrame(scale_selected_dq)
+            st.dataframe(summary_df)
+        else:
+            st.info("Please select DQ measures to evaluate.")
+
+# Create Model G(0) tab content
 with tab1:
-    create_model_verification_form("g0", "Model G(0)")
+    create_model_verification_form("g0")
     
-    col1, col2 = st.columns(2)
+    # Buttons in a row
+    col1, col2 = st.columns([1, 1])
+    
     with col1:
         if st.button("📥 Download Model Data", use_container_width=True, key="g0_download_button"):
-            csv_data = download_csv_data("g0", "Model G(0)")
+            # List to store all data rows
+            csv_data = []
+            
+            # GDT Characteristics
+            csv_data.extend([
+                ["GDT Characteristics", "", ""],
+                ["Scale", st.session_state.get("g0_gdt_scale", "Not specified"), ""],
+                ["Scale Value", st.session_state.get("g0_gdt_scale_value", "Not specified"), ""],
+                ["Building Life Cycle Stage", st.session_state.get("g0_gdt_stage", "Not specified"), ""],
+                ["AGR of model", st.session_state.get("g0_agr", "Not specified"), "mm/px"],
+                ["", "", ""]
+            ])
+            
+            # Sample for Verification
+            csv_data.extend([
+                ["Sample for Verification", "", ""],
+                ["Sample Type", st.session_state.get("g0_sample_type", "Not specified"), ""]
+            ])
+            
+            if st.session_state.get("g0_sample_type") == "Feature-based":
+                csv_data.append(["Total Features", st.session_state.get("g0_total_features", "Not specified"), ""])
+            else:
+                csv_data.append(["Sample Scale", st.session_state.get("g0_sample_scale", "Not specified"), ""])
+            
+            csv_data.append(["", "", ""])
+            
+            # Parameters for Updating
+            csv_data.extend([
+                ["Parameters for Updating", "", ""],
+                ["Number of Previous Updates", st.session_state.get("g0_updates", "Not specified"), ""],
+                ["Update Schedule", st.session_state.get("g0_schedule", "Not specified"), ""],
+                ["Survey Type", st.session_state.get("g0_survey_type", "Not specified"), ""],
+                ["Data Acquisition Sequence", st.session_state.get("g0_acq_sequence", "Not specified"), ""],
+                ["", "", ""]
+            ])
+            
+            # LoD Calculation
+            csv_data.extend([
+                ["LoD Calculation", "", ""],
+                ["Suggested LoD", calculate_lod(st.session_state.get("g0_agr", 0)) if st.session_state.get("g0_agr", 0) > 0 else "Not calculated", ""],
+                ["Feature's RMSE", st.session_state.get("g0_rmse_value", "Not specified"), ""],
+                ["", "", ""]
+            ])
+            
+            # GSD Calculation
+            sensor_size = st.session_state.get('g0_sensor_size')
+            focal_length = st.session_state.get('g0_focal_length')
+            flight_height = st.session_state.get('g0_flight_height')
+            image_width = st.session_state.get('g0_image_width')
+            
+            # Do all required values are present and greater than 0
+            if all(v is not None and v > 0 for v in [sensor_size, focal_length, flight_height, image_width]):
+                gsd = calculate_gsd(sensor_size, focal_length, flight_height, image_width)
+                gsd_value = f"{gsd:.4f} mm"
+            else:
+                gsd_value = "Not calculated"
+            
+            csv_data.extend([
+                ["GSD Calculation", "", ""],
+                ["Sensor Size", st.session_state.get("g0_sensor_size", "Not specified"), "mm"],
+                ["Focal Length", st.session_state.get("g0_focal_length", "Not specified"), "mm"],
+                ["Flight Height", st.session_state.get("g0_flight_height", "Not specified"), "m"],
+                ["Image Width", st.session_state.get("g0_image_width", "Not specified"), "px"],
+                ["Calculated GSD", gsd_value, ""],
+                ["Resolution Achieved", f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "Not calculated", ""],
+                ["", "", ""]
+            ])
+            
+            # Selected Measures
+            csv_data.append(["Selected Measures", "", ""])
+            if st.session_state.get("g0_sample_type") == "Feature-based":
+                for i, dq in enumerate(feature_dq_data):
+                    if st.session_state.get(f"g0_feature_check_{i}", False):
+                        csv_data.append([
+                            dq["Measure"],
+                            st.session_state.get(f"g0_feature_value_{i}", "Not specified"),
+                            st.session_state.get(f"g0_feature_unit_{i}", "N/A")
+                        ])
+            else:
+                for i, dq in enumerate(scale_dq_data):
+                    if st.session_state.get(f"g0_scale_check_{i}", False):
+                        csv_data.append([
+                            dq["Measure"],
+                            st.session_state.get(f"g0_scale_value_{i}", "Not specified"),
+                            st.session_state.get(f"g0_scale_unit_{i}", "N/A")
+                        ])
+            
+            # Convert to CSV
+            import csv
+            import io
+            
+            output = io.StringIO()
+            writer = csv.writer(output)
+            writer.writerows(csv_data)
+            
+            # Download button
             st.download_button(
                 label="Click to download",
-                data=csv_data,
+                data=output.getvalue(),
                 file_name="model_g0_data.csv",
                 mime="text/csv",
                 key="g0_download_csv_button"
@@ -753,19 +698,108 @@ with tab1:
     
     with col2:
         if st.button("💾 Save & Continue to Model G(t)", use_container_width=True, key="g0_next_button"):
+            # Current state
             st.session_state["g0_saved"] = True
             st.success("Model G(0) data saved! Please click on the 'Model G(t)' tab above to continue.")
 
+# Create Model G(t) tab content
 with tab2:
-    create_model_verification_form("gt", "Model G(t)")
+    create_model_verification_form("gt")
     
-    col1, col2 = st.columns(2)
+    # Buttons in a row
+    col1, col2 = st.columns([1, 1])
+    
     with col1:
         if st.button("📥 Download Model Data", use_container_width=True, key="gt_download_button"):
-            csv_data = download_csv_data("gt", "Model G(t)")
+            # List to store all data rows
+            csv_data = []
+            
+            # GDT Characteristics
+            csv_data.extend([
+                ["GDT Characteristics", "", ""],
+                ["Scale", st.session_state.get("gt_gdt_scale", "Not specified"), ""],
+                ["Scale Value", st.session_state.get("gt_gdt_scale_value", "Not specified"), ""],
+                ["Building Life Cycle Stage", st.session_state.get("gt_gdt_stage", "Not specified"), ""],
+                ["AGR of model", st.session_state.get("gt_agr", "Not specified"), "mm/px"],
+                ["", "", ""]
+            ])
+            
+            # Sample for Evaluation
+            csv_data.extend([
+                ["Sample for Evaluation", "", ""],
+                ["Sample Type", st.session_state.get("gt_sample_type", "Not specified"), ""]
+            ])
+            
+            if st.session_state.get("gt_sample_type") == "Feature-based":
+                csv_data.append(["Total Features", st.session_state.get("gt_total_features", "Not specified"), ""])
+            else:
+                csv_data.append(["Sample Scale", st.session_state.get("gt_sample_scale", "Not specified"), ""])
+            
+            csv_data.append(["", "", ""])
+            
+            # LoD Calculation
+            csv_data.extend([
+                ["LoD Calculation", "", ""],
+                ["Suggested LoD", calculate_lod(st.session_state.get("gt_agr", 0)) if st.session_state.get("gt_agr", 0) > 0 else "Not calculated", ""],
+                ["Feature's RMSE", st.session_state.get("gt_rmse_value", "Not specified"), ""],
+                ["", "", ""]
+            ])
+            
+            # GSD Calculation
+            sensor_size = st.session_state.get('gt_sensor_size')
+            focal_length = st.session_state.get('gt_focal_length')
+            flight_height = st.session_state.get('gt_flight_height')
+            image_width = st.session_state.get('gt_image_width')
+            
+            # Do all required values are present and greater than 0
+            if all(v is not None and v > 0 for v in [sensor_size, focal_length, flight_height, image_width]):
+                gsd = calculate_gsd(sensor_size, focal_length, flight_height, image_width)
+                gsd_value = f"{gsd:.4f} mm"
+            else:
+                gsd_value = "Not calculated"
+            
+            csv_data.extend([
+                ["GSD Calculation", "", ""],
+                ["Sensor Size", st.session_state.get("gt_sensor_size", "Not specified"), "mm"],
+                ["Focal Length", st.session_state.get("gt_focal_length", "Not specified"), "mm"],
+                ["Flight Height", st.session_state.get("gt_flight_height", "Not specified"), "m"],
+                ["Image Width", st.session_state.get("gt_image_width", "Not specified"), "px"],
+                ["Calculated GSD", gsd_value, ""],
+                ["Resolution Achieved", f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "Not calculated", ""],
+                ["", "", ""]
+            ])
+            
+            # Selected Measures
+            csv_data.append(["Selected Measures", "", ""])
+            if st.session_state.get("gt_sample_type") == "Feature-based":
+                for i, dq in enumerate(feature_dq_data):
+                    if st.session_state.get(f"gt_feature_check_{i}", False):
+                        csv_data.append([
+                            dq["Measure"],
+                            st.session_state.get(f"gt_feature_value_{i}", "Not specified"),
+                            st.session_state.get(f"gt_feature_unit_{i}", "N/A")
+                        ])
+            else:
+                for i, dq in enumerate(scale_dq_data):
+                    if st.session_state.get(f"gt_scale_check_{i}", False):
+                        csv_data.append([
+                            dq["Measure"],
+                            st.session_state.get(f"gt_scale_value_{i}", "Not specified"),
+                            st.session_state.get(f"gt_scale_unit_{i}", "N/A")
+                        ])
+            
+            # Convert to CSV
+            import csv
+            import io
+            
+            output = io.StringIO()
+            writer = csv.writer(output)
+            writer.writerows(csv_data)
+            
+            # Download button
             st.download_button(
                 label="Click to download",
-                data=csv_data,
+                data=output.getvalue(),
                 file_name="model_gt_data.csv",
                 mime="text/csv",
                 key="gt_download_csv_button"
@@ -773,20 +807,573 @@ with tab2:
     
     with col2:
         if st.button("💾 Save & View Results", use_container_width=True, key="gt_results_button"):
+            # Current state
             st.session_state["gt_saved"] = True
             st.success("Model G(t) data saved! Please click on the 'Verification Results' tab above to view results.")
 
+# Create Verification Results tab content
 with tab3:
-    create_verification_results() st.session_state.get(f"gt_{i}_value", 0)
-        elif dq["Measure"] == "Positional relative (internal)":
-            if st.session_state.get(f"g0_{i}_check", False):
-                g0_rel_pos = st.session_state.get(f"g0_{i}_value", 0)
-            if st.session_state.get(f"gt_{i}_check", False):
-                gt_rel_pos = st.session_state.get(f"gt_{i}_value", 0)
-    
-    dacc = None
-    if all(v is not None and v != 0 for v in [g0_abs_pos, g0_rel_pos, gt_abs_pos, gt_rel_pos]):
-        try:
-            g0_abs_pos = float(g0_abs_pos) if isinstance(g0_abs_pos, str) else g0_abs_pos
-            g0_rel_pos = float(g0_rel_pos) if isinstance(g0_rel_pos, str) else g0_rel_pos
-            gt_abs_pos =
+    def create_verification_results():
+        st.markdown('<h1 class="section-title" style="font-size: 1.4rem;">Verification Results</h1>', unsafe_allow_html=True)
+        
+        # GDT Scale from Model G(0)
+        gdt_scale = st.session_state.get("g0_gdt_scale", "Not specified")
+        st.markdown(f'<p><span style="font-weight: bold;">Scale:</span> {gdt_scale}</p>', unsafe_allow_html=True)
+
+        # Building life cycle stages from both models
+        g0_stage = st.session_state.get("g0_gdt_stage", "Not specified")
+        gt_stage = st.session_state.get("gt_gdt_stage", "Not specified")
+        
+        st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Building Life Cycle Stage</h2>', unsafe_allow_html=True)
+        
+        st.write(f"**Model G(0):** {g0_stage}")
+        st.write(f"**Model G(t):** {gt_stage}")
+        
+        # Sample for Verification from Model G(0)
+        sample_type = st.session_state.get("g0_sample_type", "Not specified")
+        
+        st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Sample for Verification</h2>', unsafe_allow_html=True)
+        
+        st.write(f"**Selected Type:** {sample_type}")
+        
+        # Additional sample information based on the type
+        if sample_type == "Feature-based":
+            total_features = st.session_state.get("g0_total_features", "Not specified")
+            st.write(f"**Total number of features (items):** {total_features}")
+        elif sample_type == "Scale-based":
+            sample_scale = st.session_state.get("g0_sample_scale", "Not specified")
+            st.write(f"**Sample scale:** {sample_scale}")
+           
+        # LoD Calculation Summary Table
+        st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">LoD Calculation Summary</h2>', unsafe_allow_html=True)
+        
+        # Values for Model G(0)
+        g0_agr = st.session_state.get("g0_agr", "N/D")
+        g0_suggested_lod = calculate_lod(g0_agr) if g0_agr != "N/D" else "N/D"
+        g0_rmse = st.session_state.get("g0_rmse_value", "N/D")
+        
+        # Values for Model G(t)
+        gt_agr = st.session_state.get("gt_agr", "N/D")
+        gt_suggested_lod = calculate_lod(gt_agr) if gt_agr != "N/D" else "N/D"
+        gt_rmse = st.session_state.get("gt_rmse_value", "N/D")
+        
+        # Summary table
+        lod_summary_data = {
+            "Model version": ["Model G(0)", "Model G(t)"],
+            "AGR of model": [f"{g0_agr} mm/px" if g0_agr != "N/D" else "N/D", 
+                            f"{gt_agr} mm/px" if gt_agr != "N/D" else "N/D"],
+            "Suggested LoD": [g0_suggested_lod, gt_suggested_lod],
+            "Resolution achieved": [f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "N/D",
+                                  f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "N/D"],
+            "Feature's RMSE": [f"{g0_rmse}" if g0_rmse != "N/D" else "N/D",
+                              f"{gt_rmse}" if gt_rmse != "N/D" else "N/D"]
+        }
+        
+        lod_summary_df = pd.DataFrame(lod_summary_data)
+        st.dataframe(lod_summary_df, use_container_width=True, hide_index=True)
+
+        # Measures Summary Table
+        st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Data Quality Elements Summary</h2>', unsafe_allow_html=True)
+        
+        # All selected measures from both models
+        g0_measures = []
+        gt_measures = []
+        
+        # Sample type from Model G(0)
+        sample_type = st.session_state.get("g0_sample_type", "Feature-based")
+        
+        # Data list based on sample type
+        if sample_type == "Feature-based":
+            data_list = feature_dq_data
+            check_prefix = "feature_check"
+            value_prefix = "feature_value"
+        else:  # Scale-based
+            data_list = scale_dq_data
+            check_prefix = "scale_check"
+            value_prefix = "scale_value"
+        
+        # Measures from Model G(0)
+        for i, dq in enumerate(data_list):
+            if st.session_state.get(f"g0_{check_prefix}_{i}", False):
+                measure = st.session_state.get(f"g0_{value_prefix}_{i}", "N/D")
+                g0_measures.append({"Measure": dq["Measure"], "Value": measure})
+        
+        # Measures from Model G(t)
+        for i, dq in enumerate(data_list):
+            if st.session_state.get(f"gt_{check_prefix}_{i}", False):
+                measure = st.session_state.get(f"gt_{value_prefix}_{i}", "N/D")
+                gt_measures.append({"Measure": dq["Measure"], "Value": measure})
+        
+        # Combined list of all unique measures
+        all_measures = set()
+        for measure in g0_measures + gt_measures:
+            all_measures.add(measure["Measure"])
+        
+        # Summary data
+        measures_summary_data = {
+            "Measure": list(all_measures),
+            "Model G(0)": ["N/D"] * len(all_measures),
+            "Model G(t)": ["N/D"] * len(all_measures)
+        }
+        
+        # Values
+        for i, measure in enumerate(measures_summary_data["Measure"]):
+            # Value in G(0)
+            for g0_measure in g0_measures:
+                if g0_measure["Measure"] == measure:
+                    measures_summary_data["Model G(0)"][i] = g0_measure["Value"]
+                    break
+            
+            # Value in G(t)
+            for gt_measure in gt_measures:
+                if gt_measure["Measure"] == measure:
+                    measures_summary_data["Model G(t)"][i] = gt_measure["Value"]
+                    break
+        
+        # DataFrame
+        measures_summary_df = pd.DataFrame(measures_summary_data)
+        st.dataframe(measures_summary_df, use_container_width=True, hide_index=True)
+
+        # Decision Model Table
+        st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model based on Mandatory Data Quality Elements</h2>', unsafe_allow_html=True)
+        
+        # Models alignment data section
+        st.markdown('<h3 style="color: #E5E1DA; font-size: 1.2rem;">Models Alignment Data (optional)</h3>', unsafe_allow_html=True)
+        
+        # Input fields for geometric deviations
+        mean_deviation = st.number_input(
+            "Mean of geometric deviations μ",
+            help="Average deviation between Model G(0) and Model G(t)",
+            format="%.3f",
+            key="mean_deviation"
+        )
+        
+        std_deviation = st.number_input(
+            "Standard deviation σ",
+            help="Standard deviation of the geometric deviations between Model G(0) and Model G(t)",
+            format="%.3f",
+            key="std_deviation"
+        )
+        
+        # Deviation threshold
+        if mean_deviation != 0 and std_deviation != 0:
+            deviation_threshold = mean_deviation + 2 * std_deviation
+            st.write(f"**Deviation threshold δpos (identifies significant deviations):** {deviation_threshold:.3f}")
+        else:
+            st.write("**Deviation threshold δpos (identifies significant deviations):** Not calculated")
+            st.caption("Both mean and standard deviation must be non-zero to calculate the threshold")
+
+        # Condition 1 section
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 1: Model Accuracy Verification</h3>', unsafe_allow_html=True)
+        st.caption("Comparison of positional accuracy between Model G(0) and Model G(t)")
+                    
+        # Values for Dacc calculation
+        g0_abs_pos = None
+        g0_rel_pos = None
+        gt_abs_pos = None
+        gt_rel_pos = None
+        
+        # Values from measures based on sample type
+        for i, dq in enumerate(data_list):
+            if dq["Measure"] == "Positional absolute (external)":
+                if st.session_state.get(f"g0_{check_prefix}_{i}", False):
+                    g0_abs_pos = st.session_state.get(f"g0_{value_prefix}_{i}", 0)
+                if st.session_state.get(f"gt_{check_prefix}_{i}", False):
+                    gt_abs_pos = st.session_state.get(f"gt_{value_prefix}_{i}", 0)
+            elif dq["Measure"] == "Positional relative (internal)":
+                if st.session_state.get(f"g0_{check_prefix}_{i}", False):
+                    g0_rel_pos = st.session_state.get(f"g0_{value_prefix}_{i}", 0)
+                if st.session_state.get(f"gt_{check_prefix}_{i}", False):
+                    gt_rel_pos = st.session_state.get(f"gt_{value_prefix}_{i}", 0)
+        
+        # Calculate Dacc
+        dacc = None
+        if all(v is not None and v != 0 for v in [g0_abs_pos, g0_rel_pos, gt_abs_pos, gt_rel_pos]):
+            try:
+                # String values to float if they are strings
+                g0_abs_pos = float(g0_abs_pos) if isinstance(g0_abs_pos, str) else g0_abs_pos
+                g0_rel_pos = float(g0_rel_pos) if isinstance(g0_rel_pos, str) else g0_rel_pos
+                gt_abs_pos = float(gt_abs_pos) if isinstance(gt_abs_pos, str) else gt_abs_pos
+                gt_rel_pos = float(gt_rel_pos) if isinstance(gt_rel_pos, str) else gt_rel_pos
+                
+                # Calculate Dacc using the formula
+                dacc = abs((1 - (gt_rel_pos/g0_rel_pos)) - (1 - (gt_abs_pos/g0_abs_pos)))
+                st.write(f"**Accuracy difference between models Dacc:** {dacc:.3f}")
+            except (ValueError, TypeError, ZeroDivisionError) as e:
+                st.write("**Accuracy difference between models Dacc:** Not calculated")
+                st.caption(f"Error in calculation: {str(e)}. Please ensure all values are valid numbers and non-zero.")
+        else:
+            st.write("**Accuracy difference between models Dacc:** Not calculated")
+            st.caption("All required positional accuracy measures must be provided and non-zero")
+        
+        # Input for δD
+        delta_d = st.number_input(
+            "δD (Accuracy difference threshold)",
+            help="Set your value. An empirical approach is preferable (δD = μDacc ± 2σDacc) from multiple update processes. Alternatively, use relevant regulatory or project requirements",
+            format="%.3f",
+            key="delta_d"
+        )
+        
+        # Compare Dacc vs δD
+        if dacc is not None and delta_d != 0:
+            comparison_result = "Consistent accuracy in both models" if dacc < delta_d else "Decline in model G(t) accuracy"
+            st.write(f"**Dacc vs. δD comparison:** {comparison_result}")
+        else:
+            st.write("**Dacc vs. δD comparison:** Not calculated")
+            st.caption("Both Dacc and δD must be calculated and non-zero")
+
+        # Conditions 2 section
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: LoD Verification</h3>', unsafe_allow_html=True)
+        st.caption("Consistency of LoD between Model G(0) and Model G(t)")
+        
+        # Values for LoD comparison
+        g0_lod = g0_suggested_lod
+        gt_lod = gt_suggested_lod
+        
+        # Compare LoD
+        if g0_lod != "N/D" and gt_lod != "N/D":
+            lod_comparison = "Consistent LoD for both models" if g0_lod == gt_lod else "Inconsistent LoD"
+            st.write(f"**LoD Verification:** {lod_comparison}")
+        else:
+            st.write("**LoD Verification:** Not calculated")
+            st.caption("Both models must have valid LoD values. Please provide AGR values in Model G(0) and Model G(t) tabs to calculate LoD.")
+        
+        
+        # Condition 3 section
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
+        st.caption("Consistency of resolution between Model G(0) and Model G(t)")
+        
+        # Resolution achieved
+        if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None:
+            resolution_comparison = "Decline in model G(t) resolution" if st.session_state.get('gt_model_resolution') < st.session_state.get('g0_model_resolution') else "Increase in model G(t) resolution"
+            st.write(f"**Resolution Verification:** {resolution_comparison}")
+        else:
+            st.write("**Resolution Verification:** Not calculated")
+            st.caption("Both models must have valid resolution values")
+
+        # Performance Comparison section
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Performance Comparison: Model G(t) vs Model G(0) (optional)</h3>', unsafe_allow_html=True)
+        st.caption("Percentage of evaluation parameters where Model G(t) outperforms Model G(0) based on Conditional and Optional DQ Elements")
+        
+        # Initialize counters
+        total_parameters = 0
+        gt_better_count = 0
+        
+        # Analyze each measure
+        for i, dq in enumerate(data_list):
+            # Only consider Conditional and Optional measures
+            if "Category: Mandatory" not in dq["Evaluation Category"]:
+                if st.session_state.get(f"g0_{check_prefix}_{i}", False):
+                    total_parameters += 1
+                    
+                    # Get values for both models
+                    g0_value = st.session_state.get(f"g0_{value_prefix}_{i}", "N/D")
+                    gt_value = st.session_state.get(f"gt_{value_prefix}_{i}", "N/D")
+                    
+                    # Compare values based on measure type
+                    if g0_value != "N/D" and gt_value != "N/D":
+                        if dq["Measure"] in ["Excess items", "Missing items", "Data model compliance", "LoD compliance", 
+                                           "Conceptual schema compliance"]:
+                            # For Yes/No measures, "No" is better
+                            if g0_value == "Yes" and gt_value == "No":
+                                gt_better_count += 1
+                        else:
+                            # For numeric measures, lower value is better
+                            try:
+                                g0_num = float(g0_value)
+                                gt_num = float(gt_value)
+                                if gt_num < g0_num:
+                                    gt_better_count += 1
+                            except ValueError:
+                                pass
+        
+        # Percentage
+        if total_parameters > 0:
+            percentage = (gt_better_count / total_parameters) * 100
+            st.write(f"**Percentage of parameters where G(t) outperforms G(0):** {percentage:.1f}%")
+            
+            # Interpretation
+            if percentage >= 75:
+                interpretation = "Excellent improvement in Model G(t)"
+            elif percentage >= 50:
+                interpretation = "Good improvement in Model G(t)"
+            elif percentage >= 25:
+                interpretation = "Moderate improvement in Model G(t)"
+            else:
+                interpretation = "Limited improvement in Model G(t)"
+            
+            st.write(f"**Interpretation:** {interpretation}")
+            st.caption(f"Based on {total_parameters} Conditional and Optional DQ Elements")
+        else:
+            st.write("**Performance comparison:** Not calculated")
+            st.caption("No Conditional or Optional DQ Elements selected")
+
+        # Visual Score section
+        can_calculate_condition1 = dacc is not None and delta_d != 0
+        can_calculate_condition2 = g0_lod != "N/D" and gt_lod != "N/D"
+        can_calculate_condition3 = st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None
+        
+        if can_calculate_condition1 and can_calculate_condition2 and can_calculate_condition3:
+            st.markdown('<h2 style="color: #fbd57a; font-size: 1.4rem;">Verification Score</h2>', unsafe_allow_html=True)   
+                         
+            # Fulfilled conditions
+            conditions_fulfilled = 0
+            
+            # Condition 1 (Dacc vs δD)
+            if dacc < delta_d:  # Consistent accuracy
+                conditions_fulfilled += 1
+            
+            # Condition 2 (LoD)
+            if g0_lod == gt_lod:  # Consistent LoD
+                conditions_fulfilled += 1
+            
+            # Condition 3 (Resolution)
+            if st.session_state.get('gt_model_resolution') >= st.session_state.get('g0_model_resolution'):  # No decline in resolution
+                conditions_fulfilled += 1
+            
+            # Score and color
+            if conditions_fulfilled == 0:
+                score = "❌ Critical"
+                color = "#FF0000"  # Red
+                message = "Decline in all metrics for model G(t). Unsuitable for the updating process."
+            elif conditions_fulfilled == 1:
+                score = "⚠️ Warning"
+                color = "#FFA500"  # Orange
+                message = "Only one of three conditions is fulfilled. Decline in metrics for model G(t). Unsuitable for the updating process."
+            elif conditions_fulfilled == 2:
+                score = "⚠️ Partial"
+                color = "#FFD700"  # Gold
+                message = "Two of three conditions are fulfilled. Model is suitable for partial updating."
+            else:
+                score = "✅ Suitable"
+                color = "#008000"  # Green
+                message = "Model G(t) outperforms model G(0). Suitable for updating."
+            
+            # Score with custom styling
+            st.markdown(f"""
+            <div style='background-color: {color}; padding: 20px; border-radius: 10px; color: white;'>
+                <h2 style='margin: 0;'>{score}</h2>
+                <p style='margin: 10px 0 0 0;'>{message}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Legend
+            st.markdown("""
+            ### Verification Legend
+            - **❌ Critical**: Model G(t) shows significant decline in all key metrics. Attention required.
+            - **⚠️ Warning**: Model G(t) shows decline in multiple metrics. Review and improvement needed.
+            - **⚠️ Partial**: Model G(t) shows mixed results. Consider partial updates with specific improvements.
+            - **✅ Suitable**: Model G(t) shows overall improvement. Ready for full update implementation.
+            """)
+        else:
+            st.write("#### Verification Score")
+            st.info("Verification score will be displayed when all three conditions (accuracy, LoD, and resolution) can be calculated.")
+
+        # Download Results button
+        st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Download Verification Results</h2>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("📥 Download Results (CSV)", use_container_width=True):
+                # Dictionary to store all results
+                results = {
+                    "Scale": gdt_scale,
+                    "Building Life Cycle Stages": {
+                        "Model G(0)": g0_stage,
+                        "Model G(t)": gt_stage
+                    },
+                    "Sample Type": sample_type,
+                    "LoD Calculation": {
+                        "Model G(0)": {
+                            "AGR": f"{g0_agr} mm/px" if g0_agr != "N/D" else "N/D",
+                            "Suggested LoD": g0_suggested_lod,
+                            "Resolution achieved": f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "N/D",
+                            "Feature's RMSE": f"{g0_rmse}" if g0_rmse != "N/D" else "N/D"
+                        },
+                        "Model G(t)": {
+                            "AGR": f"{gt_agr} mm/px" if gt_agr != "N/D" else "N/D",
+                            "Suggested LoD": gt_suggested_lod,
+                            "Resolution achieved": f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "N/D",
+                            "Feature's RMSE": f"{gt_rmse}" if gt_rmse != "N/D" else "N/D"
+                        }
+                    },
+                    "Data Quality Elements Summary": measures_summary_data,
+                    "Model Accuracy Verification": {
+                        "Dacc": f"{dacc:.3f}" if dacc is not None else "Not calculated",
+                        "δD": f"{delta_d:.3f}" if delta_d != 0 else "Not calculated",
+                        "Dacc vs δD comparison": comparison_result if dacc is not None and delta_d != 0 else "Not calculated"
+                    },
+                    "Model Resolution Verification": {
+                        "LoD verification": lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated",
+                        "Resolution verification": resolution_comparison if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None else "Not calculated"
+                    },
+                    "Model G(t) vs Model G(0) Performance": {
+                        "Percentage of parameters where G(t) outperforms G(0)": f"{percentage:.1f}%" if total_parameters > 0 else "Not calculated",
+                        "Interpretation": interpretation if total_parameters > 0 else "Not calculated",
+                        "Total parameters compared": total_parameters
+                    }
+                }
+                
+                if can_calculate_condition1 and can_calculate_condition2 and can_calculate_condition3:
+                    results["Visual Score"] = {
+                        "Score": score,
+                        "Message": message,
+                        "Conditions fulfilled": conditions_fulfilled
+                    }
+                
+                # Convert to CSV
+                import csv
+                import io
+                
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # Scale
+                writer.writerow(["Scale", gdt_scale])
+                writer.writerow([])
+                
+                # Building Life Cycle Stages
+                writer.writerow(["Building Life Cycle Stages"])
+                writer.writerow(["Model G(0)", g0_stage])
+                writer.writerow(["Model G(t)", gt_stage])
+                writer.writerow([])
+                
+                # Sample Type
+                writer.writerow(["Sample Type", sample_type])
+                writer.writerow([])
+                
+                # LoD Verification
+                writer.writerow(["LoD Verification"])
+                writer.writerow(["Model", "AGR", "Suggested LoD", "Resolution achieved", "Feature's RMSE"])
+                writer.writerow([
+                    "Model G(0)",
+                    f"{g0_agr} mm/px" if g0_agr != "N/D" else "N/D",
+                    g0_suggested_lod,
+                    f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "N/D",
+                    f"{g0_rmse}" if g0_rmse != "N/D" else "N/D"
+                ])
+                writer.writerow([
+                    "Model G(t)",
+                    f"{gt_agr} mm/px" if gt_agr != "N/D" else "N/D",
+                    gt_suggested_lod,
+                    f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "N/D",
+                    f"{gt_rmse}" if gt_rmse != "N/D" else "N/D"
+                ])
+                writer.writerow([])
+                
+                # Measures Summary
+                writer.writerow(["Data Quality Elements Summary"])
+                writer.writerow(["Measure", "Model G(0)", "Model G(t)"])
+                for i, measure in enumerate(measures_summary_data["Measure"]):
+                    writer.writerow([
+                        measure,
+                        measures_summary_data["Model G(0)"][i],
+                        measures_summary_data["Model G(t)"][i]
+                    ])
+                writer.writerow([])
+                
+                # Model Accuracy Verification
+                writer.writerow(["Model Accuracy Verification"])
+                writer.writerow(["Dacc", f"{dacc:.3f}" if dacc is not None else "Not calculated"])
+                writer.writerow(["δD", f"{delta_d:.3f}" if delta_d != 0 else "Not calculated"])
+                writer.writerow(["Dacc vs δD comparison", comparison_result if dacc is not None and delta_d != 0 else "Not calculated"])
+                writer.writerow([])
+                
+                # Model LoD Calculation
+                writer.writerow(["Model LoD Calculation"])
+                writer.writerow(["LoD Verification", lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated"])
+                writer.writerow([])
+                
+                # Model Resolution Verification
+                writer.writerow(["Model Resolution Verification"])
+                writer.writerow(["Resolution Verification", resolution_comparison if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None else "Not calculated"])
+                writer.writerow([])
+                
+                # Performance Comparison
+                writer.writerow(["Model G(t) vs Model G(0) Performance"])
+                writer.writerow(["Percentage of parameters where G(t) outperforms G(0)", f"{percentage:.1f}%" if total_parameters > 0 else "Not calculated"])
+                writer.writerow(["Interpretation", interpretation if total_parameters > 0 else "Not calculated"])
+                writer.writerow(["Total parameters compared", total_parameters])
+                writer.writerow([])
+                
+                # Visual Score if available
+                if can_calculate_condition1 and can_calculate_condition2 and can_calculate_condition3:
+                    writer.writerow(["Visual Score"])
+                    writer.writerow(["Score", score])
+                    writer.writerow(["Message", message])
+                    writer.writerow(["Conditions fulfilled", conditions_fulfilled])
+                
+                # Download button
+                st.download_button(
+                    label="Click to download CSV",
+                    data=output.getvalue(),
+                    file_name="verification_results.csv",
+                    mime="text/csv",
+                    key="download_csv_button"
+                )
+        
+        with col2:
+            if st.button("📥 Download Results (JSON)", use_container_width=True):
+                # Create a dictionary to store all results
+                results = {
+                    "Scale": gdt_scale,
+                    "Building Life Cycle Stages": {
+                        "Model G(0)": g0_stage,
+                        "Model G(t)": gt_stage
+                    },
+                    "Sample Type": sample_type,
+                    "LoD Calculation": {
+                        "Model G(0)": {
+                            "AGR": f"{g0_agr} mm/px" if g0_agr != "N/D" else "N/D",
+                            "Suggested LoD": g0_suggested_lod,
+                            "Resolution achieved": f"{st.session_state.get('g0_model_resolution', 0) * 100:.2f}%" if st.session_state.get('g0_model_resolution') is not None else "N/D",
+                            "Feature's RMSE": f"{g0_rmse}" if g0_rmse != "N/D" else "N/D"
+                        },
+                        "Model G(t)": {
+                            "AGR": f"{gt_agr} mm/px" if gt_agr != "N/D" else "N/D",
+                            "Suggested LoD": gt_suggested_lod,
+                            "Resolution achieved": f"{st.session_state.get('gt_model_resolution', 0) * 100:.2f}%" if st.session_state.get('gt_model_resolution') is not None else "N/D",
+                            "Feature's RMSE": f"{gt_rmse}" if gt_rmse != "N/D" else "N/D"
+                        }
+                    },
+                    "Data Quality Elements Summary": measures_summary_data,
+                    "Model Accuracy Verification": {
+                        "Dacc": f"{dacc:.3f}" if dacc is not None else "Not calculated",
+                        "δD": f"{delta_d:.3f}" if delta_d != 0 else "Not calculated",
+                        "Dacc vs δD comparison": comparison_result if dacc is not None and delta_d != 0 else "Not calculated"
+                    },
+                
+                    "Model LoD Calculation": {
+                        "LoD Verification": lod_comparison if g0_lod != "N/D" and gt_lod != "N/D" else "Not calculated",
+                                            },
+                    "Model Resolution Verification": {
+                        "Resolution Verification": resolution_comparison if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None else "Not calculated"
+                    },
+                    "Model G(t) vs Model G(0) Performance": {
+                        "Percentage of parameters where G(t) outperforms G(0)": f"{percentage:.1f}%" if total_parameters > 0 else "Not calculated",
+                        "Interpretation": interpretation if total_parameters > 0 else "Not calculated",
+                        "Total parameters compared": total_parameters
+                    }
+                }
+                
+                if can_calculate_condition1 and can_calculate_condition2 and can_calculate_condition3:
+                    results["Visual Score"] = {
+                        "Score": score,
+                        "Message": message,
+                        "Conditions fulfilled": conditions_fulfilled
+                    }
+                
+                # Convert to JSON
+                import json
+                json_str = json.dumps(results, indent=4)
+                
+                # Create download button
+                st.download_button(
+                    label="Click to download JSON",
+                    data=json_str,
+                    file_name="verification_results.json",
+                    mime="application/json",
+                    key="download_json_button"
+                )
+
+    create_verification_results()
