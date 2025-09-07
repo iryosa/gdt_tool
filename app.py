@@ -190,20 +190,6 @@ st.markdown("""
         transform: scaleX(0.5);
     }
     
-    /* Custom styling for condition headers */
-    .stSubheader h3 {
-        color: #fbd57a !important;
-        font-size: 1.2rem !important;
-        font-weight: bold !important;
-    }
-    
-    /* Custom styling for performance comparison header */
-    .performance-comparison h3 {
-        color: #89A8B2 !important;
-        font-size: 1.2rem !important;
-        font-style: italic !important;
-    }
-    
 </style>
 """, unsafe_allow_html=True)
 
@@ -982,7 +968,8 @@ with tab3:
             st.caption("Both mean and standard deviation must be non-zero to calculate the threshold")
 
         # Condition 1 section
-        st.subheader("Condition 1: Model Accuracy Verification", help="Comparison of positional accuracy between Model G(0) and Model G(t). This condition evaluates whether Model G(t) maintains or improves the positional accuracy compared to Model G(0) by comparing the calculated Dacc value against the defined threshold δD.")
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 1: Model Accuracy Verification</h3>', unsafe_allow_html=True)
+        st.caption("Comparison of positional accuracy between Model G(0) and Model G(t)")
                     
         # Values for Dacc calculation
         g0_abs_pos = None
@@ -1042,7 +1029,8 @@ with tab3:
             st.caption("Both Dacc and δD must be calculated and non-zero")
 
         # Conditions 2 section
-        st.subheader("Condition 2: LoD Verification", help="Consistency of LoD between Model G(0) and Model G(t). This condition ensures that both models maintain the same Level of Detail (LoD) requirements, indicating consistent geometric representation quality across model versions.")
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: LoD Verification</h3>', unsafe_allow_html=True)
+        st.caption("Consistency of LoD between Model G(0) and Model G(t)")
         
         # Values for LoD comparison
         g0_lod = g0_suggested_lod
@@ -1058,7 +1046,8 @@ with tab3:
         
         
         # Condition 3 section
-        st.subheader("Condition 3: Model Resolution Verification", help="Consistency of resolution between Model G(0) and Model G(t). This condition verifies that Model G(t) maintains or improves the spatial resolution compared to Model G(0), ensuring no degradation in model quality during the updating process.")
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
+        st.caption("Consistency of resolution between Model G(0) and Model G(t)")
         
         # Resolution achieved
         if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None:
@@ -1069,9 +1058,8 @@ with tab3:
             st.caption("Both models must have valid resolution values")
 
         # Performance Comparison section
-        st.markdown('<div class="performance-comparison">', unsafe_allow_html=True)
-        st.subheader("Performance Comparison: Model G(t) vs Model G(0) (optional)", help="Percentage of evaluation parameters where Model G(t) outperforms Model G(0) based on Conditional and Optional DQ Elements")
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Performance Comparison: Model G(t) vs Model G(0) (optional)</h3>', unsafe_allow_html=True)
+        st.caption("Percentage of evaluation parameters where Model G(t) outperforms Model G(0) based on Conditional and Optional DQ Elements")
         
         # Initialize counters
         total_parameters = 0
@@ -1155,7 +1143,7 @@ with tab3:
                 color = "#FF0000"  # Red
                 message = "Decline in all metrics for model G(t). Unsuitable for the updating process."
             elif conditions_fulfilled == 1:
-                score = "⚠️ Warning"
+                score = ⚠️ Warning"
                 color = "#FFA500"  # Orange
                 message = "Only one of three conditions is fulfilled. Decline in metrics for model G(t). Unsuitable for the updating process."
             elif conditions_fulfilled == 2:
@@ -1178,10 +1166,10 @@ with tab3:
             # Legend
             st.markdown("""
             ### Verification Legend
-            - **❌ Critical**: All conditions failed - Model G(t) unsuitable for updating
-            - **⚠️ Warning**: 1/3 conditions passed - Model G(t) needs significant improvement  
-            - **⚠️ Partial**: 2/3 conditions passed - Model G(t) suitable for partial updating
-            - **✅ Suitable**: All conditions passed - Model G(t) ready for full implementation
+            - **❌ Critical**: Model G(t) shows significant decline in all key metrics. Attention required.
+            - **⚠️ Warning**: Model G(t) shows decline in multiple metrics. Review and improvement needed.
+            - **⚠️ Partial**: Model G(t) shows mixed results. Consider partial updates with specific improvements.
+            - **✅ Suitable**: Model G(t) shows overall improvement. Ready for full update implementation.
             """)
         else:
             st.write("#### Verification Score")
