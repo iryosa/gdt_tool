@@ -44,22 +44,6 @@ st.markdown("""
         text-transform: none;
     }
     
-    /* Captions */
-    .caption {
-        color: #89A8B2;
-        font-size: 0.9rem;
-        font-style: italic;
-    }
-    
-    /* Cards for metrics */
-    .metric-card {
-        background-color: #2C3E50;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #B3C8CF;
-    }
-    
     /* Tables */
     .dataframe {
         font-size: 0.9rem;
@@ -96,39 +80,6 @@ st.markdown("""
     .stButton button:hover {
         background-color: #89A8B2;
         color: #E5E1DA;
-    }
-    
-    /* Status indicators */
-    .status-critical {
-        background-color: #E74C3C;
-        color: #E5E1DA;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-weight: 500;
-    }
-    
-    .status-warning {
-        background-color: #F39C12;
-        color: #E5E1DA;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-weight: 500;
-    }
-    
-    .status-partial {
-        background-color: #F1C40F;
-        color: #2C3E50;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-weight: 500;
-    }
-    
-    .status-suitable {
-        background-color: #27AE60;
-        color: #E5E1DA;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-weight: 500;
     }
     
     /* Compact layout */
@@ -455,8 +406,8 @@ def create_model_verification_form(tab_prefix=""):
         gsd = calculate_gsd(sensor_size, focal_length, flight_height, image_width)
         model_resolution = model_resolution_control(gsd, agr)
 
-        st.write(f"**Calculated GSD:** {gsd:.4f} mm")
-        st.write(f"**Resolution Achieved:** {model_resolution * 100:.2f}%")
+        st.markdown(f'<p style="color: #FFB433;"><strong>Calculated GSD:</strong> {gsd:.4f} mm</p>', unsafe_allow_html=True)
+        st.markdown(f'<p style="color: #FFB433;"><strong>Resolution Achieved:</strong> {model_resolution * 100:.2f}%</p>', unsafe_allow_html=True)
         
         # Store resolution value in session state
         st.session_state[f"{tab_prefix}_model_resolution"] = model_resolution
@@ -939,7 +890,7 @@ with tab3:
         st.dataframe(measures_summary_df, use_container_width=True, hide_index=True)
 
         # Decision Model Table
-        st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model based on Mandatory Data Quality Elements</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model</h2>', unsafe_allow_html=True)
         
         # Models alignment data section
         st.markdown('<h3 style="color: #89A8B2; font-size: 1.2rem; font-style: italic; border-left: 3px solid #89A8B2; padding-left: 10px;">Models Alignment Data (optional)</h3>', unsafe_allow_html=True)
@@ -1023,10 +974,12 @@ with tab3:
         # Compare Dacc vs δD
         if dacc is not None and delta_d != 0:
             comparison_result = "Consistent accuracy in both models" if dacc < delta_d else "Decline in model G(t) accuracy"
-            st.write(f"**Dacc vs. δD comparison:** {comparison_result}")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Dacc vs. δD comparison:</span> {comparison_result}</p>', unsafe_allow_html=True)
         else:
-            st.write("**Dacc vs. δD comparison:** Not calculated")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Dacc vs. δD comparison:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both Dacc and δD must be calculated and non-zero")
+
+        st.markdown("---")
 
         # Conditions 2 section
         st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: Model LoD Verification</h3>', unsafe_allow_html=True)
@@ -1039,11 +992,12 @@ with tab3:
         # Compare LoD
         if g0_lod != "N/D" and gt_lod != "N/D":
             lod_comparison = "Consistent LoD for both models" if g0_lod == gt_lod else "Inconsistent LoD"
-            st.write(f"**LoD Verification:** {lod_comparison}")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">LoD Verification:</span> {lod_comparison}</p>', unsafe_allow_html=True)
         else:
-            st.write("**LoD Verification:** Not calculated")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">LoD Verification:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both models must have valid LoD values. Please provide AGR values in Model G(0) and Model G(t) tabs to calculate LoD.")
         
+        st.markdown("---")
         
         # Condition 3 section
         st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
@@ -1052,10 +1006,12 @@ with tab3:
         # Resolution achieved
         if st.session_state.get('g0_model_resolution') is not None and st.session_state.get('gt_model_resolution') is not None:
             resolution_comparison = "Decline in model G(t) resolution" if st.session_state.get('gt_model_resolution') < st.session_state.get('g0_model_resolution') else "Increase in model G(t) resolution"
-            st.write(f"**Resolution Verification:** {resolution_comparison}")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Resolution Verification:</span> {resolution_comparison}</p>', unsafe_allow_html=True)
         else:
-            st.write("**Resolution Verification:** Not calculated")
+            st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Resolution Verification:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both models must have valid resolution values")
+
+        st.markdown("---")
 
         # Performance Comparison section
         st.markdown('<h3 style="color: #89A8B2; font-size: 1.2rem; font-style: italic; border-left: 3px solid #89A8B2; padding-left: 10px;">Performance Comparison: Model G(t) vs Model G(0) (optional)</h3>', unsafe_allow_html=True)
@@ -1109,8 +1065,7 @@ with tab3:
                 interpretation = "Limited improvement in Model G(t)"
             
             st.write(f"**Interpretation:** {interpretation}")
-            st.caption(f"Based on {total_parameters} Conditional and Optional DQ Elements")
-        else:
+            else:
             st.write("**Performance comparison:** Not calculated")
             st.caption("No Conditional or Optional DQ Elements selected")
 
