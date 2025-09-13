@@ -1065,7 +1065,7 @@ with tab3:
                 interpretation = "Limited improvement in Model G(t)"
             
             st.write(f"**Interpretation:** {interpretation}")
-            else:
+           else:
             st.write("**Performance comparison:** Not calculated")
             st.caption("No Conditional or Optional DQ Elements selected")
 
