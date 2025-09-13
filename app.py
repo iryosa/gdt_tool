@@ -141,6 +141,14 @@ st.markdown("""
         transform: scaleX(0.5);
     }
     
+    /* Compact separators */
+    .compact-separator {
+        margin: 0.5rem 0;
+        border: none;
+        height: 1px;
+        background-color: #89A8B2;
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -391,11 +399,11 @@ def create_model_verification_form(tab_prefix=""):
     
     # RMSE field
     st.markdown('<p style="color: #89A8B2; font-style: italic;">Feature\'s RMSE (optional)</p>', unsafe_allow_html=True)
-    st.markdown("*RMSE of the actual dimensions of specific elements (e.g., roof elements, windows) between the model and real-world measurements*")
+    st.caption("RMSE of the actual dimensions of specific elements (e.g., roof elements, windows) between the model and real-world measurements")
     rmse_value = st.number_input("Value", min_value=0.0, format="%.2f", key=f"{tab_prefix}_rmse_value")
 
-    # --- 4.1 GSD & Model Resolution ---
-    st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 4.1 Ground Sample Distance (GSD) Calculation</h2>', unsafe_allow_html=True)
+    # --- 5. GSD & Model Resolution ---
+    st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 5. Ground Sample Distance (GSD) Calculation</h2>', unsafe_allow_html=True)
     sensor_size = st.number_input("Sensor size [mm]", min_value=0.0, format="%.2f", step=0.01, key=f"{tab_prefix}_sensor_size")
     focal_length = st.number_input("Focal length [mm]", min_value=0.0, key=f"{tab_prefix}_focal_length")
     flight_height = st.number_input("Flight height [m]", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
@@ -416,8 +424,8 @@ def create_model_verification_form(tab_prefix=""):
         # Clear any previously stored resolution value
         st.session_state[f"{tab_prefix}_model_resolution"] = None
 
-    # --- 5. Data Quality Elements ---
-    st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Step 5. Data Quality Elements</h2>', unsafe_allow_html=True)
+    # --- 6. Data Quality Elements ---
+    st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Step 6. Data Quality Elements</h2>', unsafe_allow_html=True)
 
     if sample_type == "Feature-based":
         st.markdown('<h3 style="font-size: 1.2rem;">Feature-based Evaluation</h3>', unsafe_allow_html=True)
@@ -439,7 +447,7 @@ def create_model_verification_form(tab_prefix=""):
                     total_features = st.session_state.get(f"{tab_prefix}_total_features", 0)
                     dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, feature_dq_data, total_features)
                     feature_selected_dq.append(dq_input)
-                    st.markdown("---")
+                    st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
         else:
             # For Model G(t), show only measures selected in Model G(0)
             for i, dq in enumerate(feature_dq_data):
@@ -452,7 +460,7 @@ def create_model_verification_form(tab_prefix=""):
                     total_features = st.session_state.get(f"{tab_prefix}_total_features", 0)
                     dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, feature_dq_data, total_features)
                     feature_selected_dq.append(dq_input)
-                    st.markdown("---")
+                    st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
 
         if feature_selected_dq:
             st.markdown("### Selected DQ Elements Summary")
@@ -499,7 +507,7 @@ def create_model_verification_form(tab_prefix=""):
                     measure_lists = get_scale_measure_lists()
                     dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, scale_dq_data, input_type="scale")
                     scale_selected_dq.append(dq_input)
-                    st.markdown("---")
+                    st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
         else:
             # For Model G(t), show only measures selected in Model G(0)
             for i, dq in enumerate(scale_dq_data):
@@ -511,7 +519,7 @@ def create_model_verification_form(tab_prefix=""):
                     measure_lists = get_scale_measure_lists()
                     dq_input = create_dq_input(dq, i, tab_prefix, measure_lists, scale_dq_data, input_type="scale")
                     scale_selected_dq.append(dq_input)
-                    st.markdown("---")
+                    st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
 
         if scale_selected_dq:
             st.markdown("### Selected DQ Elements Summary")
@@ -892,32 +900,6 @@ with tab3:
         # Decision Model Table
         st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model</h2>', unsafe_allow_html=True)
         
-        # Models alignment data section
-        st.markdown('<p style="color: #89A8B2; font-style: italic;">Models Alignment Data (optional)</p>', unsafe_allow_html=True)
-        
-        # Input fields for geometric deviations
-        mean_deviation = st.number_input(
-            "Mean of geometric deviations μ",
-            help="Average deviation between Model G(0) and Model G(t)",
-            format="%.3f",
-            key="mean_deviation"
-        )
-        
-        std_deviation = st.number_input(
-            "Standard deviation σ",
-            help="Standard deviation of the geometric deviations between Model G(0) and Model G(t)",
-            format="%.3f",
-            key="std_deviation"
-        )
-        
-        # Deviation threshold
-        if mean_deviation != 0 and std_deviation != 0:
-            deviation_threshold = mean_deviation + 2 * std_deviation
-            st.write(f"**Deviation threshold δpos (identifies significant deviations):** {deviation_threshold:.3f}")
-        else:
-            st.write("**Deviation threshold δpos (identifies significant deviations):** Not calculated")
-            st.caption("Both mean and standard deviation must be non-zero to calculate the threshold")
-
         # Condition 1 section
         st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 1: Model Accuracy Verification</h3>', unsafe_allow_html=True)
         st.caption("Comparison of positional accuracy between Model G(0) and Model G(t)")
@@ -979,7 +961,35 @@ with tab3:
             st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Dacc vs. δD comparison:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both Dacc and δD must be calculated and non-zero")
 
-        st.markdown("---")
+        st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
+
+        # Models alignment data section
+        st.markdown('<p style="color: #89A8B2; font-style: italic;">Models Alignment Data (optional)</p>', unsafe_allow_html=True)
+        
+        # Input fields for geometric deviations
+        mean_deviation = st.number_input(
+            "Mean of geometric deviations μ",
+            help="Average deviation between Model G(0) and Model G(t)",
+            format="%.3f",
+            key="mean_deviation"
+        )
+        
+        std_deviation = st.number_input(
+            "Standard deviation σ",
+            help="Standard deviation of the geometric deviations between Model G(0) and Model G(t)",
+            format="%.3f",
+            key="std_deviation"
+        )
+        
+        # Deviation threshold
+        if mean_deviation != 0 and std_deviation != 0:
+            deviation_threshold = mean_deviation + 2 * std_deviation
+            st.write(f"**Deviation threshold δpos (identifies significant deviations):** {deviation_threshold:.3f}")
+        else:
+            st.write("**Deviation threshold δpos (identifies significant deviations):** Not calculated")
+            st.caption("Both mean and standard deviation must be non-zero to calculate the threshold")
+
+        st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
 
         # Conditions 2 section
         st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 2: Model LoD Verification</h3>', unsafe_allow_html=True)
@@ -997,7 +1007,7 @@ with tab3:
             st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">LoD Verification:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both models must have valid LoD values. Please provide AGR values in Model G(0) and Model G(t) tabs to calculate LoD.")
         
-        st.markdown("---")
+        st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
         
         # Condition 3 section
         st.markdown('<h3 style="color: #fbd57a; font-size: 1.2rem;">Condition 3: Model Resolution Verification</h3>', unsafe_allow_html=True)
@@ -1011,7 +1021,7 @@ with tab3:
             st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">Resolution Verification:</span> Not calculated</p>', unsafe_allow_html=True)
             st.caption("Both models must have valid resolution values")
 
-        st.markdown("---")
+        st.markdown('<hr class="compact-separator">', unsafe_allow_html=True)
 
         # Performance Comparison section
         st.markdown('<p style="color: #89A8B2; font-style: italic;">Performance Comparison: Model G(t) vs Model G(0) (optional)</p>', unsafe_allow_html=True)
