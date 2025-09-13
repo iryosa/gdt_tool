@@ -390,16 +390,16 @@ def create_model_verification_form(tab_prefix=""):
             )
     
     # RMSE field
-    st.markdown('<h3 style="font-size: 1.4rem;">Feature\'s RMSE (optional)</h3>', unsafe_allow_html=True)
-    st.markdown("*RMSE of the actual dimensions of specific elements (e.g., roof elements, windows) between the model and real-world measurements obtained with more precise equipment*")
+    st.markdown('<p style="color: #89A8B2; font-style: italic;">Feature\'s RMSE (optional)</p>', unsafe_allow_html=True)
+    st.markdown("*RMSE of the actual dimensions of specific elements (e.g., roof elements, windows) between the model and real-world measurements*")
     rmse_value = st.number_input("Value", min_value=0.0, format="%.2f", key=f"{tab_prefix}_rmse_value")
 
     # --- 4.1 GSD & Model Resolution ---
     st.markdown('<h2 style="color: #E5E1DA; font-size: 1.4rem;">Step 4.1 Ground Sample Distance (GSD) Calculation</h2>', unsafe_allow_html=True)
-    sensor_size = st.number_input("Sensor size (mm)", min_value=0.0, format="%.2f", step=0.01, key=f"{tab_prefix}_sensor_size")
-    focal_length = st.number_input("Focal length (mm)", min_value=0.0, key=f"{tab_prefix}_focal_length")
-    flight_height = st.number_input("Flight height (m)", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
-    image_width = st.number_input("Image width (px)", min_value=1, value=None, key=f"{tab_prefix}_image_width")
+    sensor_size = st.number_input("Sensor size [mm]", min_value=0.0, format="%.2f", step=0.01, key=f"{tab_prefix}_sensor_size")
+    focal_length = st.number_input("Focal length [mm]", min_value=0.0, key=f"{tab_prefix}_focal_length")
+    flight_height = st.number_input("Flight height [m]", min_value=0, step=1, key=f"{tab_prefix}_flight_height")
+    image_width = st.number_input("Image width [px]", min_value=1, value=None, key=f"{tab_prefix}_image_width")
 
     # Do all required values are entered and valid
     if all([sensor_size > 0, focal_length > 0, flight_height > 0, image_width is not None and image_width > 0]):
@@ -893,7 +893,7 @@ with tab3:
         st.markdown('<h2 style="color: #FFB433; font-size: 1.4rem;">Decision Model</h2>', unsafe_allow_html=True)
         
         # Models alignment data section
-        st.markdown('<h3 style="color: #89A8B2; font-size: 1.2rem; font-style: italic; border-left: 3px solid #89A8B2; padding-left: 10px;">Models Alignment Data (optional)</h3>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #89A8B2; font-style: italic;">Models Alignment Data (optional)</p>', unsafe_allow_html=True)
         
         # Input fields for geometric deviations
         mean_deviation = st.number_input(
@@ -990,7 +990,7 @@ with tab3:
         gt_lod = gt_suggested_lod
         
         # Compare LoD
-        if g0_lod != "N/D" and gt_lod != "N/D":
+        if g0_lod not in ["N/D", "N/A"] and gt_lod not in ["N/D", "N/A"]:
             lod_comparison = "Consistent LoD for both models" if g0_lod == gt_lod else "Inconsistent LoD"
             st.markdown(f'<p><span style="color: #fbd57a; font-weight: bold;">LoD Verification:</span> {lod_comparison}</p>', unsafe_allow_html=True)
         else:
@@ -1014,7 +1014,7 @@ with tab3:
         st.markdown("---")
 
         # Performance Comparison section
-        st.markdown('<h3 style="color: #89A8B2; font-size: 1.2rem; font-style: italic; border-left: 3px solid #89A8B2; padding-left: 10px;">Performance Comparison: Model G(t) vs Model G(0) (optional)</h3>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #89A8B2; font-style: italic;">Performance Comparison: Model G(t) vs Model G(0) (optional)</p>', unsafe_allow_html=True)
         st.caption("Percentage of evaluation parameters where Model G(t) outperforms Model G(0) based on Conditional and Optional DQ Elements")
         
         # Initialize counters
