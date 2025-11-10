@@ -8,6 +8,6 @@ This prototype web tool implements A Framework for Verification of Geometric Dig
 
 🔎 **Example usage:** [Geometric Digital Twin Verification Tool Example](gdt_tool_example.pdf)
 
-For more details, see: [Link will be here]
+For more details, see: https://doi.org/10.3390/buildings15213854
 
 ![](gdt_preview.jpg)
